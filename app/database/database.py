@@ -1,8 +1,13 @@
+import os
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 
-DATABASE_URL = "sqlite:///./data/eco.db"
+DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    "sqlite:///./data/eco.db",
+)
 
 engine = create_engine(
     DATABASE_URL,
