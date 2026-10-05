@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -45,3 +45,22 @@ def list_captures(
     captures = db.execute(statement).scalars().all()
 
     return captures
+
+
+@router.get(
+    "/{capture_id}",
+    response_model=CaptureResponse,
+)
+def get_capture(
+    capture_id: int,
+    db: Session = Depends(get_db),
+):
+    capture = db.get(Capture, capture_id)
+
+    if capture is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Capture not found",
+        )
+
+    return capture

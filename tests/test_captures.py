@@ -42,3 +42,35 @@ def test_list_captures(client):
         capture["content"] == expected_content
         for capture in data
     )
+
+
+def test_get_capture(client):
+    create_response = client.post(
+        "/captures",
+        json={
+            "type": "text",
+            "content": "Uma captura para buscar pelo ID.",
+        },
+    )
+
+    assert create_response.status_code == 200
+
+    created_capture = create_response.json()
+    capture_id = created_capture["id"]
+
+    response = client.get(f"/captures/{capture_id}")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["id"] == capture_id
+    assert data["type"] == "text"
+    assert data["content"] == "Uma captura para buscar pelo ID."
+
+
+def test_get_capture_not_found(client):
+    response = client.get("/captures/999999")
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Capture not found"
