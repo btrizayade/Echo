@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.database.database import get_db
@@ -30,3 +31,17 @@ def create_capture(
     db.refresh(new_capture)
 
     return new_capture
+
+
+@router.get(
+    "",
+    response_model=list[CaptureResponse],
+)
+def list_captures(
+    db: Session = Depends(get_db),
+):
+    statement = select(Capture).order_by(Capture.created_at.desc())
+
+    captures = db.execute(statement).scalars().all()
+
+    return captures
