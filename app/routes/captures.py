@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
@@ -62,5 +64,29 @@ def get_capture(
             status_code=404,
             detail="Capture not found",
         )
+
+    return capture
+
+
+@router.post(
+    "/{capture_id}/revisit",
+    response_model=CaptureResponse,
+)
+def revisit_capture(
+    capture_id: int,
+    db: Session = Depends(get_db),
+):
+    capture = db.get(Capture, capture_id)
+
+    if capture is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Capture not found",
+        )
+
+    capture.last_revisited_at = datetime.now(timezone.utc)
+
+    db.commit()
+    db.refresh(capture)
 
     return capture

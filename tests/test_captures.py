@@ -98,3 +98,40 @@ def test_create_capture_empty_content(client):
     )
 
     assert response.status_code == 422
+
+
+def test_revisit_capture(client):
+    create_response = client.post(
+        "/captures",
+        json={
+            "type": "text",
+            "content": "Uma captura para testar revisita.",
+        },
+    )
+
+    assert create_response.status_code == 200
+
+    created_capture = create_response.json()
+    capture_id = created_capture["id"]
+
+    assert created_capture["last_revisited_at"] is None
+
+    response = client.post(
+        f"/captures/{capture_id}/revisit"
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["id"] == capture_id
+    assert data["last_revisited_at"] is not None
+
+
+def test_revisit_capture_not_found(client):
+    response = client.post(
+        "/captures/999999/revisit"
+    )
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Capture not found"
