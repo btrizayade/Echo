@@ -1,5 +1,6 @@
 from app.database.database import Base, engine
 from app.models.capture import Capture
+from app.models.theme import Theme
 
 
 def init_db():

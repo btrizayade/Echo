@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from app.database.database import Base, engine
+from app.models.theme import Theme
 from app.routes.captures import router as captures_router
 
 
