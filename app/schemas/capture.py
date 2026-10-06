@@ -1,11 +1,20 @@
 from datetime import datetime
+from typing import Literal
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class CaptureCreate(BaseModel):
-    type: str
+    type: Literal["text"]
     content: str
+
+    @field_validator("content")
+    @classmethod
+    def validate_content(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("Content cannot be empty")
+
+        return value
 
 
 class CaptureResponse(BaseModel):

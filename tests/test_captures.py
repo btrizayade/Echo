@@ -74,3 +74,27 @@ def test_get_capture_not_found(client):
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Capture not found"
+
+
+def test_create_capture_invalid_type(client):
+    response = client.post(
+        "/captures",
+        json={
+            "type": "audio",
+            "content": "Uma captura com tipo inválido.",
+        },
+    )
+
+    assert response.status_code == 422
+
+
+def test_create_capture_empty_content(client):
+    response = client.post(
+        "/captures",
+        json={
+            "type": "text",
+            "content": "   ",
+        },
+    )
+
+    assert response.status_code == 422
