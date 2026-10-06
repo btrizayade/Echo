@@ -40,3 +40,17 @@ def create_theme(
     db.refresh(new_theme)
 
     return new_theme
+
+
+@router.get(
+    "",
+    response_model=list[ThemeResponse],
+)
+def list_themes(
+    db: Session = Depends(get_db),
+):
+    statement = select(Theme).order_by(Theme.name)
+
+    themes = db.execute(statement).scalars().all()
+
+    return themes

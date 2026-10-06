@@ -42,3 +42,34 @@ def test_create_theme_empty_name(client):
     )
 
     assert response.status_code == 422
+
+
+def test_list_themes(client):
+    client.post(
+        "/themes",
+        json={
+            "name": "Zoologia",
+        },
+    )
+
+    client.post(
+        "/themes",
+        json={
+            "name": "Arte",
+        },
+    )
+
+    response = client.get("/themes")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert isinstance(data, list)
+
+    names = [theme["name"] for theme in data]
+
+    assert "Zoologia" in names
+    assert "Arte" in names
+
+    assert names.index("Arte") < names.index("Zoologia")
