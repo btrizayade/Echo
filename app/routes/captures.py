@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from app.database.database import get_db
 from app.models.capture import Capture
+from app.models.theme import Theme
 from app.schemas.capture import CaptureCreate, CaptureResponse
 
 
@@ -85,6 +86,45 @@ def revisit_capture(
         )
 
     capture.last_revisited_at = datetime.now(timezone.utc)
+
+    db.commit()
+    db.refresh(capture)
+
+    return capture
+
+
+@router.post(
+    "/{capture_id}/themes/{theme_id}",
+    response_model=CaptureResponse,
+)
+def add_theme_to_capture(
+    capture_id: int,
+    theme_id: int,
+    db: Session = Depends(get_db),
+):
+    capture = db.get(Capture, capture_id)
+
+    if capture is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Capture not found",
+        )
+
+    theme = db.get(Theme, theme_id)
+
+    if theme is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Theme not found",
+        )
+
+    if theme in capture.themes:
+        raise HTTPException(
+            status_code=409,
+            detail="Theme already associated with capture",
+        )
+
+    capture.themes.append(theme)
 
     db.commit()
     db.refresh(capture)
