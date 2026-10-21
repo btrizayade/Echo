@@ -17,11 +17,19 @@ class CaptureCreate(BaseModel):
         return value
 
 
+class ThemeSummary(BaseModel):
+    id: int
+    name: str
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class CaptureResponse(BaseModel):
     id: int
     type: str
     content: str
     created_at: datetime
     last_revisited_at: datetime | None
+    themes: list[ThemeSummary]
 
     model_config = ConfigDict(from_attributes=True)

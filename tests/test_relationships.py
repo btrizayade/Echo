@@ -136,3 +136,42 @@ def test_add_theme_to_capture_duplicate(client):
         second_response.json()["detail"]
         == "Theme already associated with capture"
     )
+
+
+def test_get_capture_includes_themes(client):
+    capture_response = client.post(
+        "/captures",
+        json={
+            "type": "text",
+            "content": "Uma ideia sobre memoria e criatividade.",
+        },
+    )
+
+    assert capture_response.status_code == 200
+    capture_id = capture_response.json()["id"]
+
+    theme_response = client.post(
+        "/themes",
+        json={
+            "name": "Tema incluido na resposta",
+        },
+    )
+
+    assert theme_response.status_code == 201
+    theme_id = theme_response.json()["id"]
+
+    association_response = client.post(
+        f"/captures/{capture_id}/themes/{theme_id}"
+    )
+
+    assert association_response.status_code == 200
+
+    response = client.get(f"/captures/{capture_id}")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert len(data["themes"]) == 1
+    assert data["themes"][0]["id"] == theme_id
+    assert data["themes"][0]["name"] == "Tema incluido na resposta"
