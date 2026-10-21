@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -130,3 +130,41 @@ def add_theme_to_capture(
     db.refresh(capture)
 
     return capture
+
+
+@router.delete(
+    "/{capture_id}/themes/{theme_id}",
+    status_code=204,
+)
+def remove_theme_from_capture(
+    capture_id: int,
+    theme_id: int,
+    db: Session = Depends(get_db),
+) -> Response:
+    capture = db.get(Capture, capture_id)
+
+    if capture is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Capture not found",
+        )
+
+    theme = db.get(Theme, theme_id)
+
+    if theme is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Theme not found",
+        )
+
+    if theme not in capture.themes:
+        raise HTTPException(
+            status_code=404,
+            detail="Theme not associated with capture",
+        )
+
+    capture.themes.remove(theme)
+
+    db.commit()
+
+    return Response(status_code=204)

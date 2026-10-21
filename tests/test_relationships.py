@@ -175,3 +175,112 @@ def test_get_capture_includes_themes(client):
     assert len(data["themes"]) == 1
     assert data["themes"][0]["id"] == theme_id
     assert data["themes"][0]["name"] == "Tema incluido na resposta"
+
+
+def test_remove_theme_from_capture(client):
+    capture_response = client.post(
+        "/captures",
+        json={
+            "type": "text",
+            "content": "Capture for removal test.",
+        },
+    )
+
+    assert capture_response.status_code == 200
+    capture_id = capture_response.json()["id"]
+
+    theme_response = client.post(
+        "/themes",
+        json={
+            "name": "Theme for removal test",
+        },
+    )
+
+    assert theme_response.status_code == 201
+    theme_id = theme_response.json()["id"]
+
+    association_response = client.post(
+        f"/captures/{capture_id}/themes/{theme_id}"
+    )
+
+    assert association_response.status_code == 200
+
+    response = client.delete(
+        f"/captures/{capture_id}/themes/{theme_id}"
+    )
+
+    assert response.status_code == 204
+    assert response.content == b""
+
+    capture_response = client.get(f"/captures/{capture_id}")
+
+    assert capture_response.status_code == 200
+    assert capture_response.json()["themes"] == []
+
+    themes_response = client.get("/themes")
+
+    assert themes_response.status_code == 200
+    theme_ids = [theme["id"] for theme in themes_response.json()]
+    assert theme_id in theme_ids
+
+
+def test_remove_theme_from_capture_capture_not_found(client):
+    response = client.delete(
+        "/captures/999999/themes/1"
+    )
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Capture not found"
+
+
+def test_remove_theme_from_capture_theme_not_found(client):
+    capture_response = client.post(
+        "/captures",
+        json={
+            "type": "text",
+            "content": "Capture for missing theme test.",
+        },
+    )
+
+    assert capture_response.status_code == 200
+    capture_id = capture_response.json()["id"]
+
+    response = client.delete(
+        f"/captures/{capture_id}/themes/999999"
+    )
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Theme not found"
+
+
+def test_remove_unassociated_theme_from_capture(client):
+    capture_response = client.post(
+        "/captures",
+        json={
+            "type": "text",
+            "content": "Capture without associated theme.",
+        },
+    )
+
+    assert capture_response.status_code == 200
+    capture_id = capture_response.json()["id"]
+
+    theme_response = client.post(
+        "/themes",
+        json={
+            "name": "Unassociated theme",
+        },
+    )
+
+    assert theme_response.status_code == 201
+    theme_id = theme_response.json()["id"]
+
+    response = client.delete(
+        f"/captures/{capture_id}/themes/{theme_id}"
+    )
+
+    assert response.status_code == 404
+    assert (
+        response.json()["detail"]
+        == "Theme not associated with capture"
+    )
