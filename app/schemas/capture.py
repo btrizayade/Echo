@@ -1,12 +1,13 @@
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class CaptureCreate(BaseModel):
     type: Literal["text"]
     content: str
+    theme_ids: list[int] = Field(default_factory=list)
 
     @field_validator("content")
     @classmethod

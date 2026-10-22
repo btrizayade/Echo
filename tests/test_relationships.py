@@ -338,3 +338,73 @@ def test_list_theme_captures_theme_not_found(client):
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Theme not found"
+
+
+def test_create_capture_with_themes(client):
+    first_theme_response = client.post(
+        "/themes",
+        json={"name": "Etiqueta da captura A"},
+    )
+    assert first_theme_response.status_code == 201
+    first_theme_id = first_theme_response.json()["id"]
+
+    second_theme_response = client.post(
+        "/themes",
+        json={"name": "Etiqueta da captura B"},
+    )
+    assert second_theme_response.status_code == 201
+    second_theme_id = second_theme_response.json()["id"]
+
+    response = client.post(
+        "/captures",
+        json={
+            "type": "text",
+            "content": "Uma ideia com duas etiquetas.",
+            "theme_ids": [first_theme_id, second_theme_id],
+        },
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+    assert data["content"] == "Uma ideia com duas etiquetas."
+
+    theme_ids = {theme["id"] for theme in data["themes"]}
+
+    assert theme_ids == {first_theme_id, second_theme_id}
+
+
+def test_create_capture_with_missing_theme_id(client):
+    response = client.post(
+        "/captures",
+        json={
+            "type": "text",
+            "content": "Uma captura com etiqueta inexistente.",
+            "theme_ids": [999999],
+        },
+    )
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Theme IDs not found: [999999]"
+
+
+def test_create_capture_with_duplicate_theme_ids(client):
+    theme_response = client.post(
+        "/themes",
+        json={"name": "Etiqueta para testar duplicidade"},
+    )
+
+    assert theme_response.status_code == 201
+    theme_id = theme_response.json()["id"]
+
+    response = client.post(
+        "/captures",
+        json={
+            "type": "text",
+            "content": "Uma captura com etiqueta repetida.",
+            "theme_ids": [theme_id, theme_id],
+        },
+    )
+
+    assert response.status_code == 422
+    assert response.json()["detail"] == "Duplicate theme IDs are not allowed"
