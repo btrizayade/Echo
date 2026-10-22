@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.database.database import get_db
 from app.models.theme import Theme
+from app.schemas.capture import CaptureResponse
 from app.schemas.theme import ThemeCreate, ThemeResponse
 
 
@@ -54,3 +55,22 @@ def list_themes(
     themes = db.execute(statement).scalars().all()
 
     return themes
+
+
+@router.get(
+    "/{theme_id}/captures",
+    response_model=list[CaptureResponse],
+)
+def list_theme_captures(
+    theme_id: int,
+    db: Session = Depends(get_db),
+):
+    theme = db.get(Theme, theme_id)
+
+    if theme is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Theme not found",
+        )
+
+    return theme.captures

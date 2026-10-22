@@ -284,3 +284,57 @@ def test_remove_unassociated_theme_from_capture(client):
         response.json()["detail"]
         == "Theme not associated with capture"
     )
+
+
+def test_list_theme_captures(client):
+    capture_response = client.post(
+        "/captures",
+        json={
+            "type": "text",
+            "content": "Ideia associada ao tema.",
+        },
+    )
+
+    assert capture_response.status_code == 200
+    capture_id = capture_response.json()["id"]
+
+    client.post(
+        "/captures",
+        json={
+            "type": "text",
+            "content": "Ideia sem esse tema.",
+        },
+    )
+
+    theme_response = client.post(
+        "/themes",
+        json={
+            "name": "Tema para listar capturas",
+        },
+    )
+
+    assert theme_response.status_code == 201
+    theme_id = theme_response.json()["id"]
+
+    association_response = client.post(
+        f"/captures/{capture_id}/themes/{theme_id}"
+    )
+
+    assert association_response.status_code == 200
+
+    response = client.get(f"/themes/{theme_id}/captures")
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert len(data) == 1
+    assert data[0]["id"] == capture_id
+    assert data[0]["content"] == "Ideia associada ao tema."
+
+
+def test_list_theme_captures_theme_not_found(client):
+    response = client.get("/themes/999999/captures")
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Theme not found"
