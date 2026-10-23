@@ -134,3 +134,90 @@ def test_get_rescues_rejects_unknown_focus_theme(client):
     assert response.json()["detail"] == (
         "Theme IDs not found: [999999]"
     )
+
+
+def test_record_rescue_event_stores_score_and_pending_evaluation(
+    client,
+    db,
+):
+    now = datetime.now(timezone.utc)
+
+    theme = Theme(name="Event recording focus")
+    capture = Capture(
+        type="text",
+        content="An idea presented for rescue.",
+        created_at=now - timedelta(days=15),
+        last_revisited_at=None,
+        themes=[theme],
+    )
+
+    db.add(capture)
+    db.commit()
+    db.refresh(capture)
+
+    response = client.post(
+        f"/rescues/{capture.id}/events",
+        params={"focus_theme_ids": theme.id},
+    )
+
+    assert response.status_code == 201
+
+    data = response.json()
+
+    assert data["id"] is not None
+    assert data["capture_id"] == capture.id
+    assert data["score_at_rescue"] == 49
+    assert data["presented_at"] is not None
+    assert data["used"] is None
+
+
+def test_record_rescue_event_capture_not_found(client):
+    response = client.post("/rescues/999999/events")
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Capture not found"
+
+
+def test_record_rescue_event_capture_not_eligible(client, db):
+    capture = Capture(
+        type="text",
+        content="A recent idea.",
+        created_at=datetime.now(timezone.utc) - timedelta(days=2),
+        last_revisited_at=None,
+    )
+
+    db.add(capture)
+    db.commit()
+    db.refresh(capture)
+
+    response = client.post(
+        f"/rescues/{capture.id}/events"
+    )
+
+    assert response.status_code == 409
+    assert response.json()["detail"] == (
+        "Capture is not eligible for rescue"
+    )
+
+
+def test_record_rescue_event_unknown_focus_theme(client, db):
+    capture = Capture(
+        type="text",
+        content="An eligible idea.",
+        created_at=datetime.now(timezone.utc) - timedelta(days=15),
+        last_revisited_at=None,
+    )
+
+    db.add(capture)
+    db.commit()
+    db.refresh(capture)
+
+    response = client.post(
+        f"/rescues/{capture.id}/events",
+        params={"focus_theme_ids": 999999},
+    )
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == (
+        "Theme IDs not found: [999999]"
+    )
