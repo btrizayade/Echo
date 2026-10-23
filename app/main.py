@@ -3,8 +3,8 @@ from fastapi import FastAPI
 from app.database.database import Base, engine
 from app.models.theme import Theme
 from app.routes.captures import router as captures_router
+from app.routes.rescues import router as rescues_router
 from app.routes.themes import router as themes_router
-
 
 Base.metadata.create_all(bind=engine)
 
@@ -18,6 +18,7 @@ app = FastAPI(
 
 app.include_router(captures_router)
 app.include_router(themes_router)
+app.include_router(rescues_router)
 
 
 @app.get("/health")
