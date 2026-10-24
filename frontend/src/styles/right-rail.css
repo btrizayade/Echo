@@ -1,0 +1,280 @@
+
+/* Coluna direita */
+
+.right-rail {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  padding: 27px 19px 18px;
+  border-left: 2px solid var(--ink);
+  background: var(--blue-soft);
+}
+
+.rail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 9px;
+  margin-bottom: 23px;
+}
+
+.rail-header .eyebrow,
+.rail-section-heading .eyebrow {
+  margin: 0 0 6px;
+}
+
+.rail-header h2 {
+  margin: 0;
+  font-family: "Fraunces", serif;
+  font-size: 21px;
+  line-height: 1.15;
+}
+
+.rail-flower {
+  color: #c99e21;
+  font-size: 34px;
+  transform: rotate(-12deg);
+}
+
+/* Cartão para redescobrir ideias */
+
+.resurface-card {
+  padding: 16px 13px 13px;
+  border: 1.5px solid var(--ink);
+  border-radius: 14px 14px 14px 5px;
+  background: #fffdf7;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.resurface-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.resurface-icon {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--ink);
+  border-radius: 8px;
+  background: var(--yellow);
+}
+
+.resurface-top .eyebrow {
+  margin: 0;
+}
+
+.resurface-card > h3 {
+  margin: 13px 0 6px;
+  font-family: "Fraunces", serif;
+  font-size: 18px;
+  letter-spacing: -0.3px;
+}
+
+.resurface-card > p {
+  margin: 0;
+  color: #777166;
+  font-size: 10px;
+  line-height: 1.65;
+}
+
+.resurface-list {
+  display: grid;
+  gap: 6px;
+  margin-top: 16px;
+}
+
+.resurface-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 8px 5px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  text-align: left;
+}
+
+.resurface-item:hover {
+  border-color: var(--line);
+  background: #f8f4eb;
+}
+
+.resurface-mini {
+  width: 34px;
+  height: 37px;
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  border: 1px solid var(--ink);
+  border-radius: 7px;
+  background: var(--blue-soft);
+}
+
+.mini-green {
+  background: var(--green);
+}
+
+.mini-blue {
+  background: var(--blue);
+}
+
+.mini-pink {
+  background: var(--pink);
+}
+
+.mini-lavender {
+  background: var(--lavender);
+}
+
+.mini-coral {
+  background: #f4cbbb;
+}
+
+.resurface-info {
+  display: grid;
+  min-width: 0;
+  flex: 1;
+  gap: 4px;
+}
+
+.resurface-info strong {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 10px;
+  line-height: 1.35;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.resurface-info small {
+  color: #898276;
+  font-size: 8px;
+}
+
+.resurface-item > svg {
+  flex-shrink: 0;
+  color: #827b6c;
+}
+
+.resurface-button {
+  width: 100%;
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 14px;
+  padding: 7px;
+  border: 1.5px solid var(--ink);
+  border-radius: 9px;
+  background: var(--yellow);
+  box-shadow: 2px 2px 0 var(--ink);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.resurface-button:hover {
+  background: #ffda67;
+}
+
+/* Lista de temas */
+
+.rail-themes {
+  margin-top: 31px;
+}
+
+.rail-section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.rail-section-heading h3 {
+  font-size: 17px;
+}
+
+.icon-button {
+  width: 31px;
+  height: 31px;
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  border: 1px solid #d9d2c4;
+  border-radius: 8px;
+  background: #fffdf7;
+}
+
+.icon-button:hover {
+  border-color: var(--ink);
+}
+
+.rail-theme-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 43px;
+  padding: 6px 2px;
+  border: 0;
+  border-bottom: 1px solid #e9e2d4;
+  background: transparent;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.rail-theme-row:hover > span:nth-child(2) {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.theme-dot {
+  width: 27px;
+  height: 27px;
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  border: 1px solid var(--ink);
+  border-radius: 8px;
+  background: #f5e3a7;
+  font-size: 14px;
+}
+
+.dot-1 {
+  background: #d9e5d0;
+}
+
+.dot-2 {
+  background: #f1cbc1;
+}
+
+.dot-3 {
+  background: #dfd7ef;
+}
+
+.rail-theme-row small {
+  margin-left: auto;
+  color: #827b6e;
+  font-family: "DM Mono", monospace;
+  font-size: 9px;
+}
+
+/* Indicador de armazenamento local */
+
+.rail-local {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 25px;
+  color: #797365;
+  font-size: 9px;
+  transform: translateY(-8px);
+}

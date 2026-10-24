@@ -1,0 +1,49 @@
+
+/* Estrutura compartilhada das grades */
+.capture-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 15px;
+}
+
+/* Grade compacta da Visão geral */
+.capture-grid-overview {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+}
+
+.capture-grid-overview .card-description {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+}
+
+/* Grade das páginas completas */
+.capture-grid-full {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+}
+
+.capture-grid-full .capture-card {
+  height: 100%;
+  min-height: 0;
+}
+
+.capture-grid-full .card-description {
+  display: block;
+  overflow: visible;
+  -webkit-box-orient: initial;
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+  white-space: normal;
+}
+
+/* Em telas menores, usar uma coluna */
+@media (max-width: 760px) {
+  .capture-grid-overview,
+  .capture-grid-full {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

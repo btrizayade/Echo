@@ -1,0 +1,210 @@
+
+/* Barra lateral */
+
+.sidebar {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: clamp(12px, 2.2vh, 29px) 17px
+    clamp(10px, 1.6vh, 20px);
+  background: #fffef9;
+  border-right: 2px solid var(--ink);
+}
+
+/* Logo */
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  align-self: flex-start;
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+
+.brand-logo {
+  display: block;
+  width: auto;
+  height: 60px;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+/* Texto auxiliar e títulos pequenos */
+
+.sidebar-caption,
+.eyebrow {
+  color: var(--muted);
+  font-family: "DM Mono", monospace;
+  font-size: 9px;
+  letter-spacing: 1.4px;
+  line-height: 1.6;
+}
+
+.sidebar-caption {
+  margin: clamp(6px, 1.3vh, 14px) 0
+    clamp(12px, 2.2vh, 28px);
+}
+
+/* Navegação */
+
+.main-nav {
+  display: grid;
+  gap: clamp(4px, 0.7vh, 8px);
+}
+
+.nav-item {
+  min-height: clamp(35px, 5.6vh, 43px);
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 0 11px;
+  border: 1.5px solid transparent;
+  border-radius: 13px;
+  background: transparent;
+  color: #69675f;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background 150ms ease, transform 150ms ease;
+}
+
+.nav-item:hover {
+  background: #f8f4e9;
+  transform: translateX(2px);
+}
+
+.nav-item.active {
+  color: var(--ink);
+  background: #eeeae0;
+  border-color: var(--ink);
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.nav-spark {
+  margin-left: auto;
+  color: #c68c16;
+  font-size: 15px;
+}
+
+/* Espaçamento entre navegação e rodapé */
+
+.sidebar-spacer {
+  flex: 0 0 20px;
+  min-height: 20px;
+}
+
+/* Lembrete */
+
+.sidebar-note {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(10px, 1.9vh, 18px) 12px
+    clamp(10px, 1.5vh, 15px);
+  border: 1.5px solid var(--ink);
+  border-radius: 15px 15px 15px 5px;
+  background: #faf0cb;
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.note-star {
+  width: clamp(32px, 5vh, 42px);
+  height: clamp(32px, 5vh, 42px);
+  display: grid;
+  place-items: center;
+  margin-bottom: clamp(7px, 1.5vh, 14px);
+  border: 1.5px solid var(--ink);
+  border-radius: 13px;
+  background: var(--yellow);
+  transform: rotate(4deg);
+}
+
+.sidebar-note .eyebrow {
+  margin: 0 0 7px;
+}
+
+.note-copy {
+  margin: 0;
+  font-family: "Fraunces", serif;
+  font-size: clamp(13px, 1.8vh, 15px);
+  line-height: 1.35;
+}
+
+/* Botões de texto */
+
+.text-button,
+.quiet-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.text-button {
+  margin-top: clamp(8px, 1.8vh, 16px);
+  padding: 0;
+}
+
+.text-button:hover,
+.quiet-button:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Rodapé e perfil */
+
+.sidebar-footer {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: clamp(10px, 2.5vh, 25px);
+  padding: clamp(8px, 1.8vh, 14px) 3px 0;
+  border-top: 1px solid var(--line);
+}
+
+.profile-avatar {
+  width: 35px;
+  height: 35px;
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  border: 1.5px solid var(--ink);
+  border-radius: 50%;
+  background: #e9c3a2;
+  font-family: "Fraunces", serif;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.profile-info {
+  display: grid;
+  min-width: 0;
+  gap: 3px;
+}
+
+.profile-info strong {
+  font-size: 11px;
+}
+
+.profile-info span {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+/* Indicador de armazenamento local */
+
+.local-dot {
+  width: 7px;
+  height: 7px;
+  flex-shrink: 0;
+  margin-left: auto;
+  border-radius: 50%;
+  background: #71986a;
+  box-shadow: 0 0 0 3px #e5edde;
+}
