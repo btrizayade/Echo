@@ -87,7 +87,6 @@ export default function RightRail({
       <section className="rail-themes">
         <div className="rail-section-heading">
           <div>
-            <p className="eyebrow">FIO CONDUTOR</p>
             <h3>Temas em movimento</h3>
           </div>
 
