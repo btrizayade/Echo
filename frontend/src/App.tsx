@@ -243,6 +243,10 @@ function App() {
       results.sort((a, b) => b.daysUnattended - a.daysUnattended);
     }
 
+    if (activeSection === "Visão geral") {
+      results = results.slice(0, 3);
+    }
+
     return results;
   }, [captures, activeType, activeSection, activeTheme, query]);
 
@@ -374,26 +378,25 @@ function App() {
         </header>
 
         <div className="page-content">
-          <div className="page-heading">
-            <div>
-              <p className="eyebrow">UM ESPAÇO PARA EXPLORAR</p>
-              <h1>{headings.title}</h1>
-              <p className="page-subtitle">{headings.subtitle}</p>
+          {activeSection !== "Visão geral" && (
+            <div className="page-heading">
+              <div>
+                <p className="eyebrow">UM ESPAÇO PARA EXPLORAR</p>
+                <h1>{headings.title}</h1>
+                <p className="page-subtitle">{headings.subtitle}</p>
+              </div>
+              <span className="heading-doodle" aria-hidden="true">
+                ✳
+              </span>
             </div>
-            <span className="heading-doodle" aria-hidden="true">✳</span>
-          </div>
+          )}
 
           {activeSection === "Visão geral" && (
             <section className="welcome-panel">
               <div className="welcome-copy">
-                <span className="welcome-label">
-                  <Sparkles size={14} />
-                  SEU CADERNO SEM FIM
-                </span>
-                <h2>Ideias não precisam<br />nascer prontas.</h2>
+                <h2>Ideias não precisam nascer prontas.</h2>
                 <p>
-                  Guarde o fragmento. Faça conexões.<br />
-                  Volte a ele quando quiser.
+                  Guarde o fragmento. Faça conexões. Volte a ele quando quiser.
                 </p>
                 <button
                   className="welcome-button"
@@ -402,24 +405,6 @@ function App() {
                   Registrar uma ideia <ArrowUpRight size={16} />
                 </button>
               </div>
-              <div className="welcome-art" aria-hidden="true">
-                <div className="orbit orbit-one" />
-                <div className="orbit orbit-two" />
-                <div className="sun-shape" />
-                <div className="art-paper paper-one">
-                  <span />
-                  <span />
-                  <span />
-                  <FileText size={25} />
-                </div>
-                <div className="art-paper paper-two">
-                  <AudioLines size={27} />
-                </div>
-                <div className="art-star star-one">✳</div>
-                <div className="art-star star-two">✦</div>
-                <div className="art-circle" />
-              </div>
-              <span className="welcome-index">01 — CONTINUE EXPLORANDO</span>
             </section>
           )}
 
@@ -451,9 +436,7 @@ function App() {
                   ? "ESPERANDO POR VOCÊ"
                   : activeSection === "Temas"
                     ? "FRAGMENTOS RELACIONADOS"
-                    : activeSection === "Capturas"
-                      ? "SUA COLEÇÃO"
-                      : "DO SEU UNIVERSO"}
+                    : activeSection === "Capturas"}
               </p>
               <h2>
                 {activeSection === "Resgates"
@@ -559,8 +542,7 @@ function App() {
           )}
 
           <footer className="workspace-footer">
-            <span><Sparkles size={14} /> Feito para ideias em processo.</span>
-            <span>ECH—01 · WORKBENCH CRIATIVO</span>
+            <span> Feito para ideias em processo.</span>
           </footer>
         </div>
       </main>
@@ -654,11 +636,6 @@ function App() {
           })}
         </section>
 
-        <div className="rail-quote">
-          <span className="quote-mark">“</span>
-          <p>Uma ideia não precisa terminar aqui. Ela pode começar de novo.</p>
-          <span className="quote-signature">UMA NOTA PARA VOCÊ</span>
-        </div>
 
         <div className="rail-local">
           <span className="local-dot" />
