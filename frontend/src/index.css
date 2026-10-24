@@ -16,7 +16,7 @@
   --muted: #858176;
   --line: #d9d4c8;
   --yellow: #f6cb45;
-  --yellow-soft: #fff0b0;
+  --blue-soft: #bedcf74e;
   --coral: #e88a70;
   --green: #d8e2c5;
   --blue: #d7e5e8;
@@ -46,6 +46,7 @@ button {
 }
 
 button:focus-visible,
+
 input:focus-visible,
 textarea:focus-visible {
   outline: 3px solid #c49a1a;

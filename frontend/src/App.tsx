@@ -18,6 +18,7 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
+import echoLogo from "./assets/echo-logo.png";
 import "./App.css";
 
 type Section = "Visão geral" | "Capturas" | "Temas" | "Resgates";
@@ -167,7 +168,6 @@ function CaptureVisual({ capture }: { capture: Capture }) {
     return (
       <div className={`capture-visual visual-${capture.accent}`}>
         <div className="image-art">
-          <span className="art-sun" />
           <span className="art-hill hill-back" />
           <span className="art-hill hill-front" />
           <span className="art-flower flower-one">✳</span>
@@ -291,10 +291,11 @@ function App() {
           onClick={() => setActiveSection("Visão geral")}
           aria-label="Voltar para a visão geral do Echo"
         >
-          <span className="brand-mark">
-            <Sparkles size={22} />
-          </span>
-          <span className="brand-word">echo<span>.</span></span>
+          <img
+            src={echoLogo}
+            alt="Echo"
+            className="brand-logo"
+          />
         </button>
 
         <p className="sidebar-caption">SEU WORKBENCH CRIATIVO</p>

@@ -56,6 +56,14 @@ body {
   background: transparent;
 }
 
+.brand-logo {
+  display: block;
+  width: auto;
+  height: 60px;
+  max-width: 100%;
+  object-fit: contain;
+}
+
 .brand-mark {
   width: 37px;
   height: 37px;
@@ -492,7 +500,7 @@ p {
   height: 106px;
   border: 2px solid var(--ink);
   border-radius: 50%;
-  background: #fff1ae;
+  background: var(--blue-soft);
 }
 
 .art-paper {
@@ -988,7 +996,7 @@ p {
   place-items: center;
   border: 1.5px solid var(--ink);
   border-radius: 50%;
-  background: var(--yellow-soft);
+  background: var(--blue-soft);
 }
 
 .empty-state h3 {
@@ -1059,7 +1067,7 @@ p {
   flex-direction: column;
   padding: 27px 19px 18px;
   border-left: 2px solid var(--ink);
-  background: #fbf4e5;
+  background: var(--blue-soft);
 }
 
 .rail-header {
@@ -1161,7 +1169,7 @@ p {
   place-items: center;
   border: 1px solid var(--ink);
   border-radius: 7px;
-  background: var(--yellow-soft);
+  background: var(--blue-soft);
 }
 
 .mini-green { background: var(--green); }
