@@ -12,6 +12,14 @@ from app.models.capture import Capture
 from app.models.capture_asset import CaptureAsset
 from app.schemas.capture_asset import CaptureAssetResponse
 
+from mutagen import File as MutagenFile
+from mutagen.mp3 import MP3
+from mutagen.mp4 import MP4
+from mutagen.oggopus import OggOpus
+from mutagen.oggvorbis import OggVorbis
+from mutagen.wave import WAVE
+from PIL import Image
+
 
 router = APIRouter(tags=["Assets"])
 
@@ -50,10 +58,126 @@ ALLOWED_UPLOADS = {
     "audio/mp4": (
         "audio", "audio/mp4", ".m4a", {".m4a", ".mp4"}
     ),
-    "audio/webm": (
-        "audio", "audio/webm", ".webm", {".webm"}
-    ),
 }
+
+
+MAX_IMAGE_PIXELS = 40_000_000
+
+IMAGE_FORMAT_BY_MIME = {
+    "image/jpeg": "JPEG",
+    "image/png": "PNG",
+    "image/webp": "WEBP",
+    "image/gif": "GIF",
+}
+
+AUDIO_PARSERS_BY_MIME = {
+    "audio/mpeg": (MP3,),
+    "audio/wav": (WAVE,),
+    "audio/ogg": (OggVorbis, OggOpus),
+    "audio/mp4": (MP4,),
+}
+
+
+def _validate_image_file(path: Path, mime_type: str) -> None:
+    expected_format = IMAGE_FORMAT_BY_MIME.get(mime_type)
+
+    if expected_format is None:
+        raise HTTPException(
+            status_code=415,
+            detail="Unsupported image format",
+        )
+
+    try:
+        # Primeira abertura: confere a estrutura do arquivo.
+        with Image.open(path) as image:
+            if image.format != expected_format:
+                raise HTTPException(
+                    status_code=415,
+                    detail="File content does not match its declared type",
+                )
+
+            total_pixels = (
+                image.width
+                * image.height
+                * getattr(image, "n_frames", 1)
+            )
+
+            if total_pixels > MAX_IMAGE_PIXELS:
+                raise HTTPException(
+                    status_code=413,
+                    detail="Image dimensions exceed the supported limit",
+                )
+
+            image.verify()
+
+        # Segunda abertura: decodifica todos os quadros.
+        # É necessário reabrir depois de Image.verify().
+        with Image.open(path) as image:
+            if image.format != expected_format:
+                raise HTTPException(
+                    status_code=415,
+                    detail="File content does not match its declared type",
+                )
+
+            for frame_index in range(getattr(image, "n_frames", 1)):
+                image.seek(frame_index)
+                image.load()
+
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(
+            status_code=415,
+            detail="Invalid or corrupted image file",
+        ) from exc
+
+
+def _validate_audio_file(path: Path, mime_type: str) -> None:
+    expected_parsers = AUDIO_PARSERS_BY_MIME.get(mime_type)
+
+    if expected_parsers is None:
+        raise HTTPException(
+            status_code=415,
+            detail="Unsupported audio format",
+        )
+
+    try:
+        audio = MutagenFile(path)
+    except Exception as exc:
+        raise HTTPException(
+            status_code=415,
+            detail="Invalid or corrupted audio file",
+        ) from exc
+
+    if audio is None or not isinstance(audio, expected_parsers):
+        raise HTTPException(
+            status_code=415,
+            detail="File content does not match its declared type",
+        )
+
+    info = getattr(audio, "info", None)
+
+    if info is None or getattr(info, "length", 0) <= 0:
+        raise HTTPException(
+            status_code=415,
+            detail="Invalid or corrupted audio file",
+        )
+
+
+def _validate_media_content(
+    path: Path,
+    media_type: str,
+    mime_type: str,
+) -> None:
+    if media_type == "image":
+        _validate_image_file(path, mime_type)
+    elif media_type == "audio":
+        _validate_audio_file(path, mime_type)
+    else:
+        raise HTTPException(
+            status_code=415,
+            detail="Unsupported media type",
+        )
 
 
 def _asset_payload(asset: CaptureAsset) -> dict:
@@ -162,6 +286,12 @@ async def upload_capture_asset(
                 status_code=422,
                 detail="Uploaded file is empty",
             )
+
+        _validate_media_content(
+            stored_path,
+            media_type,
+            canonical_mime,
+        )
 
         asset = CaptureAsset(
             capture_id=capture_id,
