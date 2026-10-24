@@ -2,6 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 from app.models.capture import Capture
 from app.models.theme import Theme
+from app.models.rescue_event import RescueEvent
 
 
 def test_get_rescues_returns_empty_when_no_candidates_are_eligible(client):
@@ -292,3 +293,87 @@ def test_evaluate_rescue_event_not_found(client):
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Rescue event not found"
+
+
+def test_get_rescues_excludes_recently_presented_capture(client, db):
+    response = client.post(
+        "/captures",
+        json={
+            "type": "text",
+            "content": "Teste de bloqueio temporario de resgate",
+        },
+    )
+
+    assert response.status_code == 200
+    capture_id = response.json()["id"]
+
+    capture = db.get(Capture, capture_id)
+    assert capture is not None
+
+    capture.created_at = datetime.now(timezone.utc) - timedelta(days=365)
+    db.commit()
+
+    event_response = client.post(
+        f"/rescues/{capture_id}/events"
+    )
+
+    assert event_response.status_code == 201
+
+    rescues_response = client.get("/rescues?limit=20")
+
+    assert rescues_response.status_code == 200
+
+    rescued_ids = {
+        item["id"] for item in rescues_response.json()
+    }
+
+    assert capture_id not in rescued_ids
+
+
+def test_get_rescues_includes_capture_after_cooldown_expires(client, db):
+    response = client.post(
+        "/captures",
+        json={
+            "type": "text",
+            "content": "Teste de retorno apos periodo de espera",
+        },
+    )
+
+    assert response.status_code == 200
+    capture_id = response.json()["id"]
+
+    capture = db.get(Capture, capture_id)
+    assert capture is not None
+
+    capture.created_at = datetime.now(timezone.utc) - timedelta(days=365)
+    db.commit()
+
+    event_response = client.post(
+        f"/rescues/{capture_id}/events"
+    )
+
+    assert event_response.status_code == 201
+
+    event = (
+        db.query(RescueEvent)
+        .filter(RescueEvent.capture_id == capture_id)
+        .order_by(RescueEvent.id.desc())
+        .first()
+    )
+
+    assert event is not None
+
+    event.presented_at = (
+        datetime.now(timezone.utc) - timedelta(days=8)
+    )
+    db.commit()
+
+    rescues_response = client.get("/rescues?limit=20")
+
+    assert rescues_response.status_code == 200
+
+    rescued_ids = {
+        item["id"] for item in rescues_response.json()
+    }
+
+    assert capture_id in rescued_ids

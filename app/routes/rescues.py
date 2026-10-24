@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import select
@@ -8,12 +8,16 @@ from app.database.database import get_db
 from app.models.capture import Capture
 from app.models.theme import Theme
 from app.models.rescue_event import RescueEvent
+from app.schemas.capture import CaptureResponse
 from app.schemas.rescue_event import (
     RescueEventEvaluation,
     RescueEventResponse,
 )
-from app.schemas.capture import CaptureResponse
-from app.services.rescue import rank_captures, score_capture
+from app.services.rescue import (
+    RESCUE_REPEAT_COOLDOWN_DAYS,
+    rank_captures,
+    score_capture,
+)
 
 
 router = APIRouter(
@@ -37,9 +41,13 @@ def get_rescues(
         statement = select(Theme.id).where(
             Theme.id.in_(selected_focus_ids)
         )
-        existing_theme_ids = set(db.execute(statement).scalars().all())
+        existing_theme_ids = set(
+            db.execute(statement).scalars().all()
+        )
 
-        missing_ids = sorted(selected_focus_ids - existing_theme_ids)
+        missing_ids = sorted(
+            selected_focus_ids - existing_theme_ids
+        )
 
         if missing_ids:
             raise HTTPException(
@@ -47,14 +55,34 @@ def get_rescues(
                 detail=f"Theme IDs not found: {missing_ids}",
             )
 
+    now = datetime.now(timezone.utc)
+
+    cooldown_cutoff = now - timedelta(
+        days=RESCUE_REPEAT_COOLDOWN_DAYS
+    )
+
+    recently_presented_ids = set(
+        db.execute(
+            select(RescueEvent.capture_id).where(
+                RescueEvent.presented_at >= cooldown_cutoff
+            )
+        ).scalars().all()
+    )
+
     statement = select(Capture).options(
         selectinload(Capture.themes)
     )
     captures = db.execute(statement).scalars().all()
 
+    captures = [
+        capture
+        for capture in captures
+        if capture.id not in recently_presented_ids
+    ]
+
     ranked_captures = rank_captures(
         captures,
-        now=datetime.now(timezone.utc),
+        now=now,
         focus_theme_ids=selected_focus_ids,
     )
 

@@ -11,6 +11,7 @@ MIN_DAYS_UNATTENDED = 7
 MAX_AGE_POINTS = 60
 NEVER_REVISITED_BONUS = 14
 FOCUS_MATCH_BONUS = 20
+RESCUE_REPEAT_COOLDOWN_DAYS = 7
 
 
 def _normalize_datetime(value: datetime) -> datetime:
