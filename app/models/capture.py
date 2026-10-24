@@ -10,6 +10,7 @@ from app.models.association import capture_themes
 
 if TYPE_CHECKING:
     from app.models.theme import Theme
+    from app.models.capture_asset import CaptureAsset
 
 class Capture(Base):
     __tablename__ = "captures"
@@ -44,4 +45,9 @@ class Capture(Base):
     themes: Mapped[list["Theme"]] = relationship(
         secondary=capture_themes,
         back_populates="captures",
+    )
+
+    assets: Mapped[list["CaptureAsset"]] = relationship(
+        back_populates="capture",
+        cascade="all, delete-orphan",
     )

@@ -10,3 +10,5 @@ data/
 .idea/
 
 .pytest_cache/
+
+data/media/
