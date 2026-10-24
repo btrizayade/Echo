@@ -1,21 +1,39 @@
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    field_validator,
+    model_validator,
+)
 
 
 class CaptureCreate(BaseModel):
-    type: Literal["text"]
-    content: str
+    type: Literal["text", "image", "audio"]
+    content: str | None = None
     theme_ids: list[int] = Field(default_factory=list)
 
     @field_validator("content")
     @classmethod
-    def validate_content(cls, value: str) -> str:
-        if not value.strip():
-            raise ValueError("Content cannot be empty")
+    def content_must_not_be_blank(
+        cls,
+        value: str | None,
+    ) -> str | None:
+        if value is not None and not value.strip():
+            raise ValueError("Content cannot be blank.")
 
         return value
+
+    @model_validator(mode="after")
+    def text_capture_requires_content(self):
+        if self.type == "text" and self.content is None:
+            raise ValueError(
+                "Text captures require non-empty content."
+            )
+
+        return self
 
 
 class ThemeSummary(BaseModel):
@@ -27,7 +45,7 @@ class ThemeSummary(BaseModel):
 
 class CaptureResponse(BaseModel):
     id: int
-    type: str
+    type: Literal["text", "image", "audio"]
     content: str
     created_at: datetime
     last_revisited_at: datetime | None

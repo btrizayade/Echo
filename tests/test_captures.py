@@ -80,7 +80,7 @@ def test_create_capture_invalid_type(client):
     response = client.post(
         "/captures",
         json={
-            "type": "audio",
+            "type": "video",
             "content": "Uma captura com tipo inválido.",
         },
     )
@@ -135,3 +135,46 @@ def test_revisit_capture_not_found(client):
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Capture not found"
+
+
+def test_create_image_capture_without_text(client):
+    response = client.post(
+        "/captures",
+        json={
+            "type": "image",
+        },
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["type"] == "image"
+    assert data["content"] == ""
+
+
+def test_create_audio_capture_without_text(client):
+    response = client.post(
+        "/captures",
+        json={
+            "type": "audio",
+        },
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["type"] == "audio"
+    assert data["content"] == ""
+
+
+def test_create_text_capture_requires_content(client):
+    response = client.post(
+        "/captures",
+        json={
+            "type": "text",
+        },
+    )
+
+    assert response.status_code == 422

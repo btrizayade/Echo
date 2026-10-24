@@ -24,20 +24,25 @@ def create_capture(
     capture: CaptureCreate,
     db: Session = Depends(get_db),
 ):
+    # Rejeita IDs de temas repetidos.
     if len(capture.theme_ids) != len(set(capture.theme_ids)):
         raise HTTPException(
             status_code=422,
             detail="Duplicate theme IDs are not allowed",
         )
 
+    # Busca os temas solicitados.
     themes = []
 
     if capture.theme_ids:
         statement = select(Theme).where(
             Theme.id.in_(capture.theme_ids)
         )
+
         result = db.execute(statement).scalars().all()
-        themes_by_id = {theme.id: theme for theme in result}
+        themes_by_id = {
+            theme.id: theme for theme in result
+        }
 
         missing_ids = [
             theme_id
@@ -51,14 +56,16 @@ def create_capture(
                 detail=f"Theme IDs not found: {missing_ids}",
             )
 
+        # Preserva a ordem dos IDs enviados pelo usuário.
         themes = [
             themes_by_id[theme_id]
             for theme_id in capture.theme_ids
         ]
 
+    # Texto continua obrigatório apenas para capturas textuais.
     new_capture = Capture(
         type=capture.type,
-        content=capture.content,
+        content=capture.content or "",
         themes=themes,
     )
 
