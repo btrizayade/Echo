@@ -8,7 +8,10 @@ from app.database.database import get_db
 from app.models.capture import Capture
 from app.models.theme import Theme
 from app.models.rescue_event import RescueEvent
-from app.schemas.rescue_event import RescueEventResponse
+from app.schemas.rescue_event import (
+    RescueEventEvaluation,
+    RescueEventResponse,
+)
 from app.schemas.capture import CaptureResponse
 from app.services.rescue import rank_captures, score_capture
 
@@ -116,6 +119,31 @@ def record_rescue_event(
     )
 
     db.add(event)
+    db.commit()
+    db.refresh(event)
+
+    return event
+
+
+@router.patch(
+    "/events/{event_id}",
+    response_model=RescueEventResponse,
+)
+def evaluate_rescue_event(
+    event_id: int,
+    evaluation: RescueEventEvaluation,
+    db: Session = Depends(get_db),
+):
+    event = db.get(RescueEvent, event_id)
+
+    if event is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Rescue event not found",
+        )
+
+    event.used = evaluation.used
+
     db.commit()
     db.refresh(event)
 

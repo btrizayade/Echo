@@ -11,3 +11,7 @@ class RescueEventResponse(BaseModel):
     used: bool | None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class RescueEventEvaluation(BaseModel):
+    used: bool

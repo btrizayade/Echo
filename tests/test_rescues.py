@@ -221,3 +221,74 @@ def test_record_rescue_event_unknown_focus_theme(client, db):
     assert response.json()["detail"] == (
         "Theme IDs not found: [999999]"
     )
+
+
+def test_evaluate_rescue_event_as_used(client, db):
+    capture = Capture(
+        type="text",
+        content="An idea evaluated as useful.",
+        created_at=datetime.now(timezone.utc) - timedelta(days=15),
+        last_revisited_at=None,
+    )
+
+    db.add(capture)
+    db.commit()
+    db.refresh(capture)
+
+    event_response = client.post(
+        f"/rescues/{capture.id}/events"
+    )
+
+    assert event_response.status_code == 201
+    event_id = event_response.json()["id"]
+
+    response = client.patch(
+        f"/rescues/events/{event_id}",
+        json={"used": True},
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["id"] == event_id
+    assert data["capture_id"] == capture.id
+    assert data["used"] is True
+
+
+def test_evaluate_rescue_event_as_not_used(client, db):
+    capture = Capture(
+        type="text",
+        content="An idea evaluated as not useful.",
+        created_at=datetime.now(timezone.utc) - timedelta(days=15),
+        last_revisited_at=None,
+    )
+
+    db.add(capture)
+    db.commit()
+    db.refresh(capture)
+
+    event_response = client.post(
+        f"/rescues/{capture.id}/events"
+    )
+
+    assert event_response.status_code == 201
+    event_id = event_response.json()["id"]
+
+    response = client.patch(
+        f"/rescues/events/{event_id}",
+        json={"used": False},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["used"] is False
+
+
+def test_evaluate_rescue_event_not_found(client):
+    response = client.patch(
+        "/rescues/events/999999",
+        json={"used": True},
+    )
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Rescue event not found"
