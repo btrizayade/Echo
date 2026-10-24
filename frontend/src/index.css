@@ -1,0 +1,62 @@
+
+@import url("https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap");
+
+:root {
+  font-family: "DM Sans", sans-serif;
+  color: #302f2a;
+  background: #f5f2eb;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  --paper: #fffdf7;
+  --cream: #f5f2eb;
+  --ink: #302f2a;
+  --muted: #858176;
+  --line: #d9d4c8;
+  --yellow: #f6cb45;
+  --yellow-soft: #fff0b0;
+  --coral: #e88a70;
+  --green: #d8e2c5;
+  --blue: #d7e5e8;
+  --pink: #f4d8d4;
+  --lavender: #e4ddf0;
+  --shadow: 3px 3px 0 var(--ink);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 360px;
+  min-height: 100vh;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+button {
+  color: inherit;
+}
+
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid #c49a1a;
+  outline-offset: 3px;
+}
+
+button {
+  cursor: pointer;
+}
+
+::selection {
+  color: var(--ink);
+  background: #f6dc84;
+}
