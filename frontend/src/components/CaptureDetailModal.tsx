@@ -1,5 +1,6 @@
 
 import {
+  ArrowUpRight,
   Bookmark,
   Clock3,
   Tags,
@@ -13,11 +14,19 @@ import type { Capture } from "../types/capture";
 type CaptureDetailModalProps = {
   capture: Capture;
   onClose: () => void;
+  onRescue?: () => void;
+  isRescuing?: boolean;
+  rescueRecorded?: boolean;
+  rescueError?: string | null;
 };
 
 export default function CaptureDetailModal({
   capture,
   onClose,
+  onRescue,
+  isRescuing = false,
+  rescueRecorded = false,
+  rescueError = null,
 }: CaptureDetailModalProps) {
   return (
     <div
@@ -78,6 +87,42 @@ export default function CaptureDetailModal({
             {capture.age}
           </span>
         </div>
+
+        {onRescue && (
+          <div className="rescue-action">
+            {rescueRecorded ? (
+              <p className="demo-notice" role="status">
+                Resgate registrado. Esta ideia ficará em pausa
+                durante o período de cooldown.
+              </p>
+            ) : (
+              <>
+                <button
+                  className="modal-submit"
+                  type="button"
+                  onClick={onRescue}
+                  disabled={isRescuing}
+                >
+                  {isRescuing
+                    ? "Registrando resgate..."
+                    : "Resgatar esta ideia"}
+                  <ArrowUpRight size={16} />
+                </button>
+
+                <p className="demo-notice">
+                  Só registre o resgate quando decidir que quer
+                  revisitar esta ideia agora.
+                </p>
+              </>
+            )}
+
+            {rescueError && (
+              <p className="demo-notice" role="alert">
+                Não foi possível registrar o resgate: {rescueError}
+              </p>
+            )}
+          </div>
+        )}
 
         <p className="demo-notice">
           Os cartões são amostras visuais. Upload e persistência

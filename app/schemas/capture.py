@@ -1,3 +1,4 @@
+
 from datetime import datetime
 from typing import Literal
 
@@ -12,8 +13,20 @@ from pydantic import (
 
 class CaptureCreate(BaseModel):
     type: Literal["text", "image", "audio"]
+    title: str | None = None
     content: str | None = None
     theme_ids: list[int] = Field(default_factory=list)
+
+    @field_validator("title")
+    @classmethod
+    def title_must_not_be_blank(
+        cls,
+        value: str | None,
+    ) -> str | None:
+        if value is not None and not value.strip():
+            raise ValueError("Title cannot be blank.")
+
+        return value.strip() if value is not None else None
 
     @field_validator("content")
     @classmethod
@@ -46,6 +59,7 @@ class ThemeSummary(BaseModel):
 class CaptureResponse(BaseModel):
     id: int
     type: Literal["text", "image", "audio"]
+    title: str
     content: str
     created_at: datetime
     last_revisited_at: datetime | None

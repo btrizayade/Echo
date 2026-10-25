@@ -1,3 +1,4 @@
+
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Response
@@ -62,9 +63,19 @@ def create_capture(
             for theme_id in capture.theme_ids
         ]
 
-    # Texto continua obrigatório apenas para capturas textuais.
+    # Mantém compatibilidade com requisições sem título.
+    if capture.title:
+        title = capture.title
+    elif capture.content:
+        title = capture.content.strip()[:180]
+    elif capture.type == "image":
+        title = "Captura de imagem"
+    else:
+        title = "Captura de áudio"
+
     new_capture = Capture(
         type=capture.type,
+        title=title,
         content=capture.content or "",
         themes=themes,
     )
@@ -83,11 +94,11 @@ def create_capture(
 def list_captures(
     db: Session = Depends(get_db),
 ):
-    statement = select(Capture).order_by(Capture.created_at.desc())
+    statement = select(Capture).order_by(
+        Capture.created_at.desc()
+    )
 
-    captures = db.execute(statement).scalars().all()
-
-    return captures
+    return db.execute(statement).scalars().all()
 
 
 @router.get(

@@ -1,5 +1,10 @@
 
 import { useMemo, useState } from "react";
+import {
+  AlertCircle,
+  LoaderCircle,
+  RefreshCw,
+} from "lucide-react";
 
 import CaptureDetailModal from "./components/CaptureDetailModal";
 import CaptureGrid from "./components/CaptureGrid";
@@ -12,7 +17,10 @@ import ThemeFilterPanel from "./components/ThemeFilterPanel";
 import Topbar from "./components/Topbar";
 import WelcomePanel from "./components/WelcomePanel";
 
-import { initialCaptures } from "./data/captures";
+import { typeLabels } from "./data/captures";
+import { useCaptures } from "./hooks/useCaptures";
+import { useThemes } from "./hooks/useThemes";
+import { useRescues } from "./hooks/useRescues";
 
 import type {
   Capture,
@@ -50,9 +58,6 @@ function App() {
   const [activeSection, setActiveSection] =
     useState<Section>("Visão geral");
 
-  const [captures, setCaptures] =
-    useState<Capture[]>(initialCaptures);
-
   const [query, setQuery] = useState("");
 
   const [activeType, setActiveType] =
@@ -65,13 +70,52 @@ function App() {
 
   const [showNewCapture, setShowNewCapture] = useState(false);
 
+  const [isRescuing, setIsRescuing] = useState(false);
+  
+  const [rescueRecordedId, setRescueRecordedId] =
+    useState<number | null>(null);
+  const [rescueActionError, setRescueActionError] =
+    useState<string | null>(null);
+
+  const {
+    captures,
+    isLoading,
+    error,
+    refresh,
+    createCapture,
+  } = useCaptures();
+
+  const {
+    themes: apiThemes,
+    isLoading: themesLoading,
+    error: themesError,
+    refresh: refreshThemes,
+  } = useThemes();
+
+  const {
+    rescues,
+    isLoading: rescuesLoading,
+    error: rescuesError,
+    refresh: refreshRescues,
+    recordRescue,
+  } = useRescues(activeSection === "Resgates");
+
   const themes = useMemo(
-    () => [...new Set(captures.map((capture) => capture.theme))],
-    [captures],
+    () => apiThemes.map((theme) => theme.name),
+    [apiThemes],
   );
 
+  const activeCaptures =
+    activeSection === "Resgates" ? rescues : captures;
+
+  const pageLoading =
+    activeSection === "Resgates" ? rescuesLoading : isLoading;
+
+  const pageError =
+    activeSection === "Resgates" ? rescuesError : error;
+
   const visibleCaptures = useMemo(() => {
-    let results = [...captures];
+    let results = [...activeCaptures];
 
     if (activeType !== "all") {
       results = results.filter(
@@ -95,11 +139,7 @@ function App() {
           capture.title,
           capture.content,
           capture.theme,
-          capture.type === "text"
-            ? "texto"
-            : capture.type === "image"
-              ? "imagem"
-              : "áudio",
+          typeLabels[capture.type],
         ]
           .join(" ")
           .toLocaleLowerCase("pt-BR")
@@ -107,18 +147,19 @@ function App() {
       );
     }
 
-    if (activeSection === "Resgates") {
-      results.sort(
-        (a, b) => b.daysUnattended - a.daysUnattended,
-      );
-    }
-
     if (activeSection === "Visão geral") {
       results = results.slice(0, HOME_CAPTURE_LIMIT);
     }
 
+    // A ordem dos resgates vem do backend.
     return results;
-  }, [captures, activeType, activeSection, activeTheme, query]);
+  }, [
+    activeCaptures,
+    activeType,
+    activeSection,
+    activeTheme,
+    query,
+  ]);
 
   const forgottenCaptures = useMemo(
     () =>
@@ -131,25 +172,57 @@ function App() {
     [captures],
   );
 
-  function handleCreateCapture(title: string, content: string) {
-    const newCapture: Capture = {
-      id: Math.max(0, ...captures.map((capture) => capture.id)) + 1,
-      type: "text",
-      title,
-      content,
-      theme: "Novas ideias",
-      age: "Agora",
-      daysUnattended: 0,
-      accent: "yellow",
-    };
+  async function handleCreateCapture(
+    title: string,
+    content: string,
+  ) {
+    try {
+      await createCapture({
+        type: "text",
+        title,
+        content,
+      });
 
-    setCaptures((current) => [newCapture, ...current]);
-    setShowNewCapture(false);
+      setShowNewCapture(false);
+      setActiveSection("Capturas");
+      setActiveType("all");
+      setActiveTheme("Todos");
+      setQuery("");
+    } catch {
+      // O hook guarda a mensagem de erro e mantém o formulário aberto.
+    }
+  }
 
-    setActiveSection("Capturas");
-    setActiveType("all");
-    setActiveTheme("Todos");
-    setQuery("");
+  async function handleSelectCapture(capture: Capture) {
+    setSelectedCapture(capture);
+    setRescueRecordedId(null);
+    setRescueActionError(null);
+  }
+
+  async function handleRecordRescue() {
+    if (
+      !selectedCapture ||
+      isRescuing ||
+      rescueRecordedId === selectedCapture.id
+    ) {
+      return;
+    }
+
+    setIsRescuing(true);
+    setRescueActionError(null);
+
+    try {
+      await recordRescue(selectedCapture.id);
+      setRescueRecordedId(selectedCapture.id);
+    } catch (requestError) {
+      setRescueActionError(
+        requestError instanceof Error
+          ? requestError.message
+          : "Não foi possível registrar o resgate.",
+      );
+    } finally {
+      setIsRescuing(false);
+    }
   }
 
   function handleViewLibrary() {
@@ -171,6 +244,16 @@ function App() {
   }
 
   const headings = sectionHeadings[activeSection];
+
+  const canOfferRescue =
+    selectedCapture !== null &&
+    activeSection === "Resgates" &&
+    (
+      rescues.some(
+        (capture) => capture.id === selectedCapture.id,
+      ) ||
+      rescueRecordedId === selectedCapture.id
+    );  
 
   return (
     <div className="echo-app">
@@ -203,11 +286,32 @@ function App() {
           )}
 
           {activeSection === "Temas" && (
-            <ThemeFilterPanel
-              themes={themes}
-              activeTheme={activeTheme}
-              onThemeChange={setActiveTheme}
-            />
+            <>
+              <ThemeFilterPanel
+                themes={themes}
+                activeTheme={activeTheme}
+                onThemeChange={setActiveTheme}
+              />
+
+              {themesLoading && (
+                <p role="status">Carregando temas...</p>
+              )}
+
+              {themesError && (
+                <div role="alert">
+                  <p>
+                    Não foi possível carregar os temas: {themesError}
+                  </p>
+
+                  <button
+                    className="quiet-button"
+                    onClick={() => void refreshThemes()}
+                  >
+                    Tentar novamente <RefreshCw size={14} />
+                  </button>
+                </div>
+              )}
+            </>
           )}
 
           <CaptureToolbar
@@ -218,12 +322,63 @@ function App() {
             onViewLibrary={handleViewLibrary}
           />
 
-          <CaptureGrid
-            captures={visibleCaptures}
-            activeSection={activeSection}
-            onSelectCapture={setSelectedCapture}
-            onClearFilters={handleClearFilters}
-          />
+          {pageLoading && activeCaptures.length === 0 ? (
+            <div className="empty-state" role="status">
+              <div className="empty-icon">
+                <LoaderCircle size={24} />
+              </div>
+
+              <h3>
+                {activeSection === "Resgates"
+                  ? "Procurando ideias para redescobrir..."
+                  : "Carregando suas ideias..."}
+              </h3>
+
+              <p>Buscando informações salvas no Echo.</p>
+            </div>
+          ) : pageError && activeCaptures.length === 0 ? (
+            <div className="empty-state" role="alert">
+              <div className="empty-icon">
+                <AlertCircle size={24} />
+              </div>
+
+              <h3>
+                {activeSection === "Resgates"
+                  ? "Não foi possível carregar os resgates."
+                  : "Não foi possível carregar as capturas."}
+              </h3>
+
+              <p>{pageError}</p>
+
+              <button
+                className="quiet-button"
+                onClick={() => {
+                  if (activeSection === "Resgates") {
+                    void refreshRescues();
+                  } else {
+                    void refresh();
+                  }
+                }}
+              >
+                Tentar novamente <RefreshCw size={14} />
+              </button>
+            </div>
+          ) : (
+            <>
+              {pageError && (
+                <p role="status" className="api-error">
+                  Não foi possível concluir a última operação: {pageError}
+                </p>
+              )}
+
+              <CaptureGrid
+                captures={visibleCaptures}
+                activeSection={activeSection}
+                onSelectCapture={handleSelectCapture}
+                onClearFilters={handleClearFilters}
+              />
+            </>
+          )}
 
           <footer className="workspace-footer">
             <span>Feito para ideias em processo.</span>
@@ -251,6 +406,14 @@ function App() {
         <CaptureDetailModal
           capture={selectedCapture}
           onClose={() => setSelectedCapture(null)}
+          onRescue={
+            canOfferRescue ? handleRecordRescue : undefined
+          }
+          isRescuing={isRescuing}
+          rescueRecorded={
+            rescueRecordedId === selectedCapture.id
+          }
+          rescueError={rescueActionError}
         />
       )}
     </div>

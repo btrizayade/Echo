@@ -26,6 +26,12 @@ class Capture(Base):
         nullable=False,
     )
 
+    title: Mapped[str] = mapped_column(
+        String(180),
+        nullable=False,
+        default="",
+    )
+
     content: Mapped[str] = mapped_column(
         Text,
         nullable=False,
