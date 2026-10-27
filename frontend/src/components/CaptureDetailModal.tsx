@@ -1,15 +1,21 @@
 
+import { useEffect, useState } from "react";
 import {
   ArrowUpRight,
+  AudioLines,
   Bookmark,
   Clock3,
   Tags,
   X,
 } from "lucide-react";
 
-import CaptureVisual from "./CaptureVisual";
+import { CaptureVisual } from "./CaptureVisual";
 import { typeLabels } from "../data/captures";
 import type { Capture } from "../types/capture";
+import {
+  listCaptureAssets,
+  getAssetFileUrl,
+} from "../services/api";
 
 type CaptureDetailModalProps = {
   capture: Capture;
@@ -28,6 +34,63 @@ export default function CaptureDetailModal({
   rescueRecorded = false,
   rescueError = null,
 }: CaptureDetailModalProps) {
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [audioLoading, setAudioLoading] = useState(false);
+  const [audioError, setAudioError] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    setAudioUrl(null);
+    setAudioError(false);
+
+    if (capture.type !== "audio") {
+      setAudioLoading(false);
+
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    setAudioLoading(true);
+
+    async function loadAudio() {
+      try {
+        const assets = await listCaptureAssets(capture.id);
+        const audioAsset = assets.find(
+          (asset) => asset.media_type === "audio"
+        );
+
+        if (!cancelled) {
+          if (audioAsset) {
+            setAudioUrl(getAssetFileUrl(audioAsset));
+          } else {
+            setAudioError(true);
+          }
+        }
+      } catch (error) {
+        console.error(
+          "Não foi possível carregar o áudio da captura:",
+          error
+        );
+
+        if (!cancelled) {
+          setAudioError(true);
+        }
+      } finally {
+        if (!cancelled) {
+          setAudioLoading(false);
+        }
+      }
+    }
+
+    void loadAudio();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [capture.id, capture.type]);
+
   return (
     <div
       className="modal-backdrop"
@@ -63,7 +126,55 @@ export default function CaptureDetailModal({
         </p>
 
         <div className="detail-visual">
-          <CaptureVisual capture={capture} />
+          {capture.type === "audio" ? (
+            <div
+              className={`capture-visual visual-${capture.accent}`}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 12,
+                width: "100%",
+                height: "100%",
+                minHeight: 160,
+                padding: 16,
+                boxSizing: "border-box",
+              }}
+            >
+              <AudioLines size={30} strokeWidth={1.8} />
+
+              <span className="visual-caption">
+                {audioUrl ? "ÁUDIO SALVO" : "FRAGMENTO SONORO"}
+              </span>
+
+              {audioUrl ? (
+                <audio
+                  controls
+                  preload="metadata"
+                  src={audioUrl}
+                  aria-label={`Reproduzir áudio: ${capture.title}`}
+                  style={{
+                    display: "block",
+                    width: "100%",
+                    maxWidth: 360,
+                  }}
+                >
+                  Seu navegador não suporta a reprodução de áudio.
+                </audio>
+              ) : (
+                <p className="demo-notice" role="status">
+                  {audioLoading
+                    ? "Carregando áudio..."
+                    : audioError
+                      ? "Não foi possível localizar ou carregar o arquivo de áudio."
+                      : "Nenhum arquivo de áudio disponível."}
+                </p>
+              )}
+            </div>
+          ) : (
+            <CaptureVisual capture={capture} />
+          )}
         </div>
 
         <span className={`type-label type-${capture.type}`}>
@@ -123,11 +234,6 @@ export default function CaptureDetailModal({
             )}
           </div>
         )}
-
-        <p className="demo-notice">
-          Os cartões são amostras visuais. Upload e persistência
-          serão ligados à API na próxima etapa.
-        </p>
       </section>
     </div>
   );

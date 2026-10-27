@@ -1,7 +1,7 @@
 
 import { ArrowUpRight } from "lucide-react";
 
-import CaptureVisual from "./CaptureVisual";
+import { CaptureVisual } from "./CaptureVisual";
 import { typeIcons, typeLabels } from "../data/captures";
 import type { Capture } from "../types/capture";
 

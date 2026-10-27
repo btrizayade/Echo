@@ -22,6 +22,11 @@ import { useCaptures } from "./hooks/useCaptures";
 import { useThemes } from "./hooks/useThemes";
 import { useRescues } from "./hooks/useRescues";
 
+import {
+  uploadCaptureAsset,
+  type CreateCapturePayload,
+} from "./services/api";
+
 import type {
   Capture,
   CaptureType,
@@ -71,9 +76,10 @@ function App() {
   const [showNewCapture, setShowNewCapture] = useState(false);
 
   const [isRescuing, setIsRescuing] = useState(false);
-  
+
   const [rescueRecordedId, setRescueRecordedId] =
     useState<number | null>(null);
+
   const [rescueActionError, setRescueActionError] =
     useState<string | null>(null);
 
@@ -151,7 +157,6 @@ function App() {
       results = results.slice(0, HOME_CAPTURE_LIMIT);
     }
 
-    // A ordem dos resgates vem do backend.
     return results;
   }, [
     activeCaptures,
@@ -173,27 +178,45 @@ function App() {
   );
 
   async function handleCreateCapture(
-    title: string,
-    content: string,
-  ) {
-    try {
-      await createCapture({
-        type: "text",
-        title,
-        content,
-      });
-
-      setShowNewCapture(false);
-      setActiveSection("Capturas");
-      setActiveType("all");
-      setActiveTheme("Todos");
-      setQuery("");
-    } catch {
-      // O hook guarda a mensagem de erro e mantém o formulário aberto.
-    }
+    payload: CreateCapturePayload,
+  ): Promise<Capture> {
+    return createCapture(payload);
   }
 
-  async function handleSelectCapture(capture: Capture) {
+  async function handleUpload(
+    captureId: number,
+    file: File,
+  ): Promise<void> {
+    await uploadCaptureAsset(captureId, file);
+  }
+
+  function handleCaptureComplete() {
+    setShowNewCapture(false);
+    setActiveSection("Capturas");
+    setActiveType("all");
+    setActiveTheme("Todos");
+    setQuery("");
+  }
+
+  function handleViewLibrary() {
+    setActiveSection("Capturas");
+    setActiveType("all");
+    setActiveTheme("Todos");
+  }
+
+  function handleThemeSelect(theme: string) {
+    setActiveSection("Temas");
+    setActiveTheme(theme);
+    setActiveType("all");
+  }
+
+  function handleClearFilters() {
+    setQuery("");
+    setActiveType("all");
+    setActiveTheme("Todos");
+  }
+
+  function handleSelectCapture(capture: Capture) {
     setSelectedCapture(capture);
     setRescueRecordedId(null);
     setRescueActionError(null);
@@ -225,26 +248,6 @@ function App() {
     }
   }
 
-  function handleViewLibrary() {
-    setActiveSection("Capturas");
-    setActiveType("all");
-    setActiveTheme("Todos");
-  }
-
-  function handleThemeSelect(theme: string) {
-    setActiveSection("Temas");
-    setActiveTheme(theme);
-    setActiveType("all");
-  }
-
-  function handleClearFilters() {
-    setQuery("");
-    setActiveType("all");
-    setActiveTheme("Todos");
-  }
-
-  const headings = sectionHeadings[activeSection];
-
   const canOfferRescue =
     selectedCapture !== null &&
     activeSection === "Resgates" &&
@@ -253,7 +256,9 @@ function App() {
         (capture) => capture.id === selectedCapture.id,
       ) ||
       rescueRecordedId === selectedCapture.id
-    );  
+    );
+
+  const headings = sectionHeadings[activeSection];
 
   return (
     <div className="echo-app">
@@ -399,6 +404,8 @@ function App() {
         <NewCaptureModal
           onClose={() => setShowNewCapture(false)}
           onCreate={handleCreateCapture}
+          onUpload={handleUpload}
+          onComplete={handleCaptureComplete}
         />
       )}
 

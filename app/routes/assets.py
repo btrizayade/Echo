@@ -44,7 +44,10 @@ ALLOWED_UPLOADS = {
         "image", "image/gif", ".gif", {".gif"}
     ),
     "audio/mpeg": (
-        "audio", "audio/mpeg", ".mp3", {".mp3"}
+    "audio", "audio/mpeg", ".mp3", {".mp3", ".mpeg"}
+    ),
+    "video/mpeg": (
+        "audio", "audio/mpeg", ".mp3", {".mpeg"}
     ),
     "audio/wav": (
         "audio", "audio/wav", ".wav", {".wav"}
