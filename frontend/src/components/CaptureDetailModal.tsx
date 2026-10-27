@@ -6,6 +6,7 @@ import {
   Bookmark,
   Clock3,
   Tags,
+  Trash2,
   X,
 } from "lucide-react";
 
@@ -24,12 +25,14 @@ type CaptureDetailModalProps = {
   isRescuing?: boolean;
   rescueRecorded?: boolean;
   rescueError?: string | null;
+  onDelete?: () => Promise<void>;
 };
 
 export default function CaptureDetailModal({
   capture,
   onClose,
   onRescue,
+  onDelete,
   isRescuing = false,
   rescueRecorded = false,
   rescueError = null,
@@ -37,6 +40,28 @@ export default function CaptureDetailModal({
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [audioLoading, setAudioLoading] = useState(false);
   const [audioError, setAudioError] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  async function handleDelete() {
+    if (!onDelete) return;
+
+    setIsDeleting(true);
+    setDeleteError(null);
+
+    try {
+      await onDelete();
+    } catch (error) {
+      setDeleteError(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível excluir esta ideia."
+      );
+    } finally {
+      setIsDeleting(false);
+    }
+  }
 
   useEffect(() => {
     let cancelled = false;
@@ -198,6 +223,55 @@ export default function CaptureDetailModal({
             {capture.age}
           </span>
         </div>
+
+          {onDelete && (
+  <div className="delete-capture-section">
+    {confirmDelete ? (
+      <div className="delete-capture-confirmation">
+        <p>
+          Excluir esta ideia permanentemente? Os arquivos de mídia
+          associados também serão removidos.
+        </p>
+
+        <div className="delete-capture-actions">
+          <button
+            type="button"
+            className="delete-cancel-button"
+            onClick={() => setConfirmDelete(false)}
+            disabled={isDeleting}
+          >
+            Cancelar
+          </button>
+
+          <button
+            type="button"
+            className="delete-confirm-button"
+            onClick={handleDelete}
+            disabled={isDeleting}
+          >
+            <Trash2 size={16} />
+            {isDeleting ? "Excluindo..." : "Excluir definitivamente"}
+          </button>
+        </div>
+      </div>
+    ) : (
+      <button
+        type="button"
+        className="delete-capture-button"
+        onClick={() => setConfirmDelete(true)}
+      >
+        <Trash2 size={16} />
+        Excluir ideia
+      </button>
+    )}
+
+    {deleteError && (
+      <p className="demo-notice" role="alert">
+        Não foi possível excluir: {deleteError}
+      </p>
+    )}
+  </div>
+)}
 
         {onRescue && (
           <div className="rescue-action">

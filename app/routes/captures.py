@@ -1,12 +1,15 @@
 
+import logging
+from pathlib import Path
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Response
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from app.database.database import get_db
 from app.models.capture import Capture
+from app.models.rescue_event import RescueEvent
 from app.models.theme import Theme
 from app.schemas.capture import CaptureCreate, CaptureResponse
 
@@ -15,6 +18,10 @@ router = APIRouter(
     prefix="/captures",
     tags=["captures"],
 )
+
+logger = logging.getLogger(__name__)
+
+MEDIA_DIR = Path(__file__).resolve().parents[2] / "data" / "media"
 
 
 @router.post(
@@ -119,6 +126,58 @@ def get_capture(
 
     return capture
 
+@router.delete(
+    "/{capture_id}",
+    status_code=204,
+)
+def delete_capture(
+    capture_id: int,
+    db: Session = Depends(get_db),
+) -> Response:
+    capture = db.get(Capture, capture_id)
+
+    if capture is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Capture not found",
+        )
+
+    # Guarda os nomes antes da exclusão dos registros.
+    stored_filenames = [
+        asset.stored_filename
+        for asset in capture.assets
+    ]
+
+    try:
+        # Remove os eventos de resgate associados.
+        db.execute(
+            delete(RescueEvent).where(
+                RescueEvent.capture_id == capture_id
+            )
+        )
+
+        # A relação da captura exclui os anexos do banco.
+        db.delete(capture)
+        db.commit()
+
+    except Exception:
+        db.rollback()
+        raise
+
+    # Remove os arquivos físicos após confirmar a exclusão
+    # dos registros no banco de dados.
+    for filename in stored_filenames:
+        file_path = MEDIA_DIR / filename
+
+        try:
+            file_path.unlink(missing_ok=True)
+        except OSError:
+            logger.exception(
+                "Não foi possível remover o arquivo de mídia: %s",
+                file_path,
+            )
+
+    return Response(status_code=204)
 
 @router.post(
     "/{capture_id}/revisit",

@@ -94,6 +94,12 @@ export function listCaptures(): Promise<ApiCapture[]> {
   return request<ApiCapture[]>("/captures");
 }
 
+export function deleteCapture(id: number): Promise<void> {
+  return request<void>(`/captures/${id}`, {
+    method: "DELETE",
+  });
+}
+
 export function getCapture(id: number): Promise<ApiCapture> {
   return request<ApiCapture>(`/captures/${id}`);
 }

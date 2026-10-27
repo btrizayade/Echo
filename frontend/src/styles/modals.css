@@ -166,3 +166,121 @@
 .detail-modal > .demo-notice {
   margin-top: 15px;
 }
+
+/* Exclusão de capturas */
+
+.delete-capture-section {
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.delete-capture-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 9px 12px;
+  border: 1.5px solid #b75a4d;
+  border-radius: 9px;
+  background: transparent;
+  color: #a24539;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease;
+}
+
+.delete-capture-button:hover {
+  background: #fff0eb;
+  border-color: #a24539;
+}
+
+.delete-capture-confirmation {
+  padding: 14px;
+  border: 1.5px solid #e5c5b9;
+  border-radius: 11px;
+  background: #fff8f2;
+}
+
+.delete-capture-confirmation > p {
+  margin: 0 0 14px;
+  color: var(--ink);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.delete-capture-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.delete-cancel-button,
+.delete-confirm-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 9px 12px;
+  border: 1.5px solid var(--ink);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    transform 160ms ease;
+}
+
+.delete-cancel-button {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.delete-cancel-button:hover:not(:disabled) {
+  background: var(--yellow);
+}
+
+.delete-confirm-button {
+  border-color: #a24539;
+  background: #a24539;
+  color: #fffaf5;
+}
+
+.delete-confirm-button:hover:not(:disabled) {
+  background: #85372e;
+  border-color: #85372e;
+}
+
+.delete-cancel-button:disabled,
+.delete-confirm-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.delete-capture-button:focus-visible,
+.delete-cancel-button:focus-visible,
+.delete-confirm-button:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 3px;
+}
+
+@media (max-width: 420px) {
+  .delete-capture-actions {
+    flex-direction: column-reverse;
+  }
+
+  .delete-cancel-button,
+  .delete-confirm-button {
+    width: 100%;
+  }
+}

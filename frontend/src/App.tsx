@@ -23,6 +23,7 @@ import { useThemes } from "./hooks/useThemes";
 import { useRescues } from "./hooks/useRescues";
 
 import {
+  deleteCapture,
   uploadCaptureAsset,
   type CreateCapturePayload,
 } from "./services/api";
@@ -188,6 +189,19 @@ function App() {
     file: File,
   ): Promise<void> {
     await uploadCaptureAsset(captureId, file);
+  }
+
+  async function handleDeleteCapture(
+    captureId: number,
+  ): Promise<void> {
+    await deleteCapture(captureId);
+
+    setSelectedCapture(null);
+    setRescueRecordedId(null);
+    setRescueActionError(null);
+
+    void refresh();
+    void refreshRescues();
   }
 
   function handleCaptureComplete() {
@@ -413,6 +427,7 @@ function App() {
         <CaptureDetailModal
           capture={selectedCapture}
           onClose={() => setSelectedCapture(null)}
+          onDelete={() => handleDeleteCapture(selectedCapture.id)}
           onRescue={
             canOfferRescue ? handleRecordRescue : undefined
           }
