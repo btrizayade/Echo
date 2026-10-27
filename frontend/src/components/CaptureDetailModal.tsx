@@ -4,18 +4,20 @@ import {
   ArrowUpRight,
   AudioLines,
   Bookmark,
+  Check,
   Clock3,
+  Pencil,
+  Plus,
   Tags,
   Trash2,
   X,
-  Pencil,
-  Check,
 } from "lucide-react";
 
 import { CaptureVisual } from "./CaptureVisual";
 import { typeLabels } from "../data/captures";
 import type { Capture } from "../types/capture";
 import {
+  createTheme,
   getCapture,
   listCaptureAssets,
   listThemes,
@@ -68,6 +70,8 @@ export default function CaptureDetailModal({
   const [displayContent, setDisplayContent] = useState(capture.content);
   const [displayTheme, setDisplayTheme] = useState(capture.theme);
 
+  const [newThemeName, setNewThemeName] = useState("");
+  const [isCreatingTheme, setIsCreatingTheme] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
 
   async function handleDelete() {
@@ -113,6 +117,7 @@ export default function CaptureDetailModal({
           "Sem tema",
       );
 
+      setNewThemeName("");
       setIsEditing(true);
     } catch (error) {
       setEditError(
@@ -128,8 +133,73 @@ export default function CaptureDetailModal({
   function handleCancelEditing() {
     setEditTitle(displayTitle);
     setEditContent(displayContent);
+    setNewThemeName("");
     setEditError(null);
     setIsEditing(false);
+  }
+
+  function toggleTheme(themeId: number, checked: boolean) {
+    setSelectedThemeIds((current) =>
+      checked
+        ? current.includes(themeId)
+          ? current
+          : [...current, themeId]
+        : current.filter((id) => id !== themeId),
+    );
+  }
+
+  async function handleCreateTheme() {
+    const name = newThemeName.trim();
+
+    if (!name) {
+      setEditError("Digite um nome para o novo tema.");
+      return;
+    }
+
+    const existingTheme = availableThemes.find(
+      (theme) => theme.name.toLocaleLowerCase("pt-BR") ===
+        name.toLocaleLowerCase("pt-BR"),
+    );
+
+    if (existingTheme) {
+      setSelectedThemeIds((current) =>
+        current.includes(existingTheme.id)
+          ? current
+          : [...current, existingTheme.id],
+      );
+      setNewThemeName("");
+      setEditError(null);
+      return;
+    }
+
+    setIsCreatingTheme(true);
+    setEditError(null);
+
+    try {
+      const createdTheme = await createTheme(name);
+
+      setAvailableThemes((current) =>
+        current.some((theme) => theme.id === createdTheme.id)
+          ? current
+          : [...current, createdTheme],
+      );
+
+      setSelectedThemeIds((current) =>
+        current.includes(createdTheme.id)
+          ? current
+          : [...current, createdTheme.id],
+      );
+
+      setNewThemeName("");
+    } catch (error) {
+      setEditError(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível criar o tema.",
+      );
+    } finally {
+      setIsCreatingTheme(false);
+    }
   }
 
   async function handleSaveEdit() {
@@ -189,16 +259,6 @@ export default function CaptureDetailModal({
     } finally {
       setIsSavingEdit(false);
     }
-  }
-
-  function toggleTheme(themeId: number, checked: boolean) {
-    setSelectedThemeIds((current) =>
-      checked
-        ? current.includes(themeId)
-          ? current
-          : [...current, themeId]
-        : current.filter((id) => id !== themeId),
-    );
   }
 
   useEffect(() => {
@@ -378,7 +438,7 @@ export default function CaptureDetailModal({
               <legend>Temas</legend>
 
               {availableThemes.length === 0 ? (
-                <p>Nenhum tema cadastrado.</p>
+                <p>Nenhum tema cadastrado. Crie um abaixo.</p>
               ) : (
                 availableThemes.map((theme) => (
                   <label
@@ -397,6 +457,50 @@ export default function CaptureDetailModal({
                   </label>
                 ))
               )}
+
+              <div className="capture-new-theme">
+                <label
+                  className="capture-field-label"
+                  htmlFor="new-theme-name"
+                >
+                  Criar novo tema
+                </label>
+
+                <div className="capture-new-theme-controls">
+                  <input
+                    id="new-theme-name"
+                    className="capture-edit-input capture-new-theme-input"
+                    type="text"
+                    value={newThemeName}
+                    onChange={(event) =>
+                      setNewThemeName(event.target.value)
+                    }
+                    placeholder="Ex.: Inspiração, Estudos..."
+                    maxLength={100}
+                    disabled={isCreatingTheme || isSavingEdit}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter") {
+                        event.preventDefault();
+                        void handleCreateTheme();
+                      }
+                    }}
+                  />
+
+                  <button
+                    className="capture-new-theme-button"
+                    type="button"
+                    onClick={() => void handleCreateTheme()}
+                    disabled={
+                      isCreatingTheme ||
+                      isSavingEdit ||
+                      !newThemeName.trim()
+                    }
+                  >
+                    <Plus size={16} />
+                    {isCreatingTheme ? "Criando..." : "Criar"}
+                  </button>
+                </div>
+              </div>
             </fieldset>
 
             {editError && (
@@ -410,7 +514,7 @@ export default function CaptureDetailModal({
                 className="delete-cancel-button"
                 type="button"
                 onClick={handleCancelEditing}
-                disabled={isSavingEdit}
+                disabled={isSavingEdit || isCreatingTheme}
               >
                 Cancelar
               </button>
@@ -419,7 +523,11 @@ export default function CaptureDetailModal({
                 className="modal-submit"
                 type="button"
                 onClick={() => void handleSaveEdit()}
-                disabled={isSavingEdit || isLoadingEdit}
+                disabled={
+                  isSavingEdit ||
+                  isLoadingEdit ||
+                  isCreatingTheme
+                }
               >
                 {isSavingEdit ? (
                   "Salvando..."
