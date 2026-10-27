@@ -2,7 +2,12 @@
 import { useState, type FormEvent } from "react";
 import {
   ArrowUpRight,
+  AudioLines,
+  Check,
+  FileText,
+  Image as ImageIcon,
   Lightbulb,
+  Upload,
   X,
 } from "lucide-react";
 
@@ -42,14 +47,17 @@ export default function NewCaptureModal({
   const [draftTitle, setDraftTitle] = useState("");
   const [draftContent, setDraftContent] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [pendingCaptureId, setPendingCaptureId] = useState<number | null>(null);
+  const [pendingCaptureId, setPendingCaptureId] = useState<number | null>(
+    null
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const isMediaType = draftType !== "text";
+  const isTypeLocked = isSubmitting || pendingCaptureId !== null;
 
   function handleTypeChange(type: CaptureType) {
-    if (pendingCaptureId !== null || isSubmitting) return;
+    if (isTypeLocked) return;
 
     setDraftType(type);
     setSelectedFile(null);
@@ -82,7 +90,7 @@ export default function NewCaptureModal({
       setSubmitError(
         draftType === "image"
           ? "Selecione uma imagem para continuar."
-          : "Selecione um arquivo de áudio para continuar.",
+          : "Selecione um arquivo de áudio para continuar."
       );
       return;
     }
@@ -125,7 +133,7 @@ export default function NewCaptureModal({
       setSubmitError(
         captureId !== null
           ? `A captura já foi criada, mas o arquivo não foi enviado. ${getErrorMessage(error)} Selecione o arquivo novamente e tente enviar; não criaremos outra captura.`
-          : getErrorMessage(error),
+          : getErrorMessage(error)
       );
     } finally {
       setIsSubmitting(false);
@@ -142,7 +150,7 @@ export default function NewCaptureModal({
       }}
     >
       <section
-        className="modal-card"
+        className="modal-card new-capture-modal"
         role="dialog"
         aria-modal="true"
         aria-labelledby="new-capture-heading"
@@ -174,23 +182,108 @@ export default function NewCaptureModal({
         </p>
 
         <form onSubmit={handleSubmit}>
-          <label htmlFor="capture-type">
+          <p id="capture-type-label" className="capture-field-label">
             Formato da captura
-          </label>
+          </p>
 
-          <select
-            id="capture-type"
-            className="capture-type-select"
-            value={draftType}
-            onChange={(event) =>
-              handleTypeChange(event.target.value as CaptureType)
-            }
-            disabled={isSubmitting || pendingCaptureId !== null}
+          <div
+            className="capture-type-picker"
+            role="radiogroup"
+            aria-labelledby="capture-type-label"
           >
-            <option value="text">Texto</option>
-            <option value="image">Imagem</option>
-            <option value="audio">Áudio</option>
-          </select>
+            <label
+              className={`capture-type-option ${
+                draftType === "text" ? "is-selected" : ""
+              } ${isTypeLocked ? "is-disabled" : ""}`}
+            >
+              <input
+                className="capture-type-radio"
+                type="radio"
+                name="capture-type"
+                value="text"
+                checked={draftType === "text"}
+                onChange={() => handleTypeChange("text")}
+                disabled={isTypeLocked}
+              />
+
+              <span className="capture-type-icon">
+                <FileText size={21} />
+              </span>
+
+              <span className="capture-type-copy">
+                <span className="capture-type-title">Texto</span>
+                <span className="capture-type-description">
+                  Pensamentos e anotações
+                </span>
+              </span>
+
+              {draftType === "text" && (
+                <Check className="capture-type-check" size={17} />
+              )}
+            </label>
+
+            <label
+              className={`capture-type-option ${
+                draftType === "image" ? "is-selected" : ""
+              } ${isTypeLocked ? "is-disabled" : ""}`}
+            >
+              <input
+                className="capture-type-radio"
+                type="radio"
+                name="capture-type"
+                value="image"
+                checked={draftType === "image"}
+                onChange={() => handleTypeChange("image")}
+                disabled={isTypeLocked}
+              />
+
+              <span className="capture-type-icon">
+                <ImageIcon size={21} />
+              </span>
+
+              <span className="capture-type-copy">
+                <span className="capture-type-title">Imagem</span>
+                <span className="capture-type-description">
+                  Referências visuais
+                </span>
+              </span>
+
+              {draftType === "image" && (
+                <Check className="capture-type-check" size={17} />
+              )}
+            </label>
+
+            <label
+              className={`capture-type-option ${
+                draftType === "audio" ? "is-selected" : ""
+              } ${isTypeLocked ? "is-disabled" : ""}`}
+            >
+              <input
+                className="capture-type-radio"
+                type="radio"
+                name="capture-type"
+                value="audio"
+                checked={draftType === "audio"}
+                onChange={() => handleTypeChange("audio")}
+                disabled={isTypeLocked}
+              />
+
+              <span className="capture-type-icon">
+                <AudioLines size={21} />
+              </span>
+
+              <span className="capture-type-copy">
+                <span className="capture-type-title">Áudio</span>
+                <span className="capture-type-description">
+                  Vozes e fragmentos sonoros
+                </span>
+              </span>
+
+              {draftType === "audio" && (
+                <Check className="capture-type-check" size={17} />
+              )}
+            </label>
+          </div>
 
           <label htmlFor="capture-title">
             Qual é o título desta ideia?
@@ -203,7 +296,7 @@ export default function NewCaptureModal({
             placeholder="Um título provisório..."
             maxLength={180}
             required
-            disabled={isSubmitting || pendingCaptureId !== null}
+            disabled={isTypeLocked}
           />
 
           <label htmlFor="capture-content">
@@ -224,41 +317,80 @@ export default function NewCaptureModal({
             }
             rows={4}
             required={draftType === "text"}
-            disabled={isSubmitting || pendingCaptureId !== null}
+            disabled={isTypeLocked}
           />
 
           {isMediaType && (
             <>
-              <label htmlFor="capture-file">
+              <label htmlFor="capture-file" className="capture-file-label">
                 {draftType === "image"
-                  ? "Escolha uma imagem"
-                  : "Escolha um arquivo de áudio"}
+                  ? "Imagem para guardar"
+                  : "Áudio para guardar"}
               </label>
 
-              <input
-                id="capture-file"
-                type="file"
-                accept={FILE_ACCEPT[draftType]}
-                required={pendingCaptureId === null}
-                disabled={isSubmitting}
-                onChange={(event) => {
-                  setSelectedFile(event.target.files?.[0] ?? null);
-                  setSubmitError(null);
-                }}
-              />
+              <div
+                className={`capture-file-picker ${
+                  selectedFile ? "has-file" : ""
+                } ${isSubmitting ? "is-disabled" : ""}`}
+              >
+                <input
+                  id="capture-file"
+                  className="capture-file-input"
+                  type="file"
+                  accept={FILE_ACCEPT[draftType]}
+                  required={pendingCaptureId === null}
+                  disabled={isSubmitting}
+                  aria-describedby="capture-file-help"
+                  onChange={(event) => {
+                    setSelectedFile(event.currentTarget.files?.[0] ?? null);
+                    setSubmitError(null);
 
-              <p className="demo-notice">
-                Formatos aceitos conforme o tipo selecionado.
+                    // Permite selecionar novamente o mesmo arquivo
+                    // caso seja necessário tentar o upload outra vez.
+                    event.currentTarget.value = "";
+                  }}
+                />
+
+                <label
+                  htmlFor="capture-file"
+                  className="capture-file-dropzone"
+                >
+                  <span className="capture-file-icon">
+                    {draftType === "image" ? (
+                      <ImageIcon size={23} />
+                    ) : (
+                      <AudioLines size={23} />
+                    )}
+                  </span>
+
+                  <span className="capture-file-copy">
+                    <span className="capture-file-title">
+                      {selectedFile
+                        ? selectedFile.name
+                        : draftType === "image"
+                          ? "Escolha uma imagem"
+                          : "Escolha um arquivo de áudio"}
+                    </span>
+
+                    <span className="capture-file-subtitle">
+                      {selectedFile
+                        ? `${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB · Clique para trocar`
+                        : draftType === "image"
+                          ? "PNG, JPG, WEBP ou GIF"
+                          : "MP3, MPEG, WAV, OGG, M4A ou MP4"}
+                    </span>
+                  </span>
+
+                  <span className="capture-file-action">
+                    <Upload size={15} />
+                    {selectedFile ? "Trocar" : "Selecionar"}
+                  </span>
+                </label>
+              </div>
+
+              <p id="capture-file-help" className="demo-notice">
                 Tamanho máximo: 25 MB.
               </p>
-
-              {selectedFile && (
-                <p className="demo-notice">
-                  Arquivo selecionado: {selectedFile.name}
-                  {" · "}
-                  {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
-                </p>
-              )}
             </>
           )}
 

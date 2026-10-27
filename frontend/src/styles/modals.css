@@ -284,3 +284,271 @@
     width: 100%;
   }
 }
+
+/* Seletor visual do formato da captura */
+
+.capture-field-label {
+  margin: 4px 0 0;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.capture-type-picker {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+  margin-bottom: 5px;
+}
+
+.modal-card form .capture-type-option {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  min-width: 0;
+  min-height: 112px;
+  margin: 0;
+  padding: 12px 10px;
+  border: 1.5px solid var(--line);
+  border-radius: 11px;
+  background: #fffef9;
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.capture-type-option:hover:not(.is-disabled) {
+  border-color: var(--ink);
+  background: #fff9e8;
+}
+
+.modal-card form .capture-type-option.is-selected {
+  border-color: var(--ink);
+  background: #fff3c5;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+
+.capture-type-option:has(.capture-type-radio:focus-visible) {
+  outline: 3px solid var(--yellow);
+  outline-offset: 3px;
+}
+
+.capture-type-radio {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.modal-card form .capture-type-option.is-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.capture-type-icon {
+  display: grid;
+  place-items: center;
+  width: 35px;
+  height: 35px;
+  flex-shrink: 0;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.capture-type-option.is-selected .capture-type-icon {
+  border-color: var(--ink);
+  background: var(--yellow);
+}
+
+.capture-type-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.modal-card form .capture-type-option .capture-type-title {
+  display: block;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.modal-card form .capture-type-option .capture-type-description {
+  display: block;
+  color: #81796b;
+  font-size: 9px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.capture-type-check {
+  position: absolute;
+  top: 9px;
+  right: 8px;
+  color: var(--ink);
+}
+
+/* Área personalizada para selecionar arquivos */
+
+.modal-card form label.capture-file-label {
+  margin-top: 6px;
+}
+
+.capture-file-picker {
+  position: relative;
+  min-width: 0;
+}
+
+.capture-file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.modal-card form .capture-file-dropzone {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+  margin: 0;
+  padding: 14px 12px;
+  border: 1.5px dashed #c9bfaa;
+  border-radius: 12px;
+  background: #fffef9;
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    background 160ms ease,
+    border-color 160ms ease;
+}
+
+.capture-file-picker:hover .capture-file-dropzone {
+  border-color: var(--ink);
+  background: #fff9e8;
+}
+
+.capture-file-picker.has-file .capture-file-dropzone {
+  border-style: solid;
+  border-color: var(--ink);
+  background: #fff9e8;
+}
+
+.capture-file-input:focus-visible + .capture-file-dropzone {
+  outline: 3px solid var(--yellow);
+  outline-offset: 3px;
+}
+
+.capture-file-picker.is-disabled .capture-file-dropzone {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.capture-file-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border: 1px solid var(--ink);
+  border-radius: 10px;
+  background: var(--yellow);
+  color: var(--ink);
+}
+
+.capture-file-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.modal-card form .capture-file-dropzone .capture-file-title {
+  display: block;
+  overflow: hidden;
+  max-width: 100%;
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.modal-card form .capture-file-dropzone .capture-file-subtitle {
+  display: block;
+  color: #81796b;
+  font-size: 9px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.capture-file-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  flex-shrink: 0;
+  padding: 8px 9px;
+  border: 1px solid var(--ink);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.capture-file-picker:hover .capture-file-action {
+  background: var(--yellow);
+}
+
+@media (max-width: 400px) {
+  .capture-type-picker {
+    gap: 6px;
+  }
+
+  .modal-card form .capture-type-option {
+    min-height: 108px;
+    padding: 10px 7px;
+  }
+
+  .capture-type-icon {
+    width: 31px;
+    height: 31px;
+  }
+
+  .modal-card form .capture-type-option .capture-type-description {
+    font-size: 8px;
+  }
+
+  .capture-file-icon {
+    width: 35px;
+    height: 35px;
+  }
+
+  .modal-card form .capture-file-dropzone {
+    gap: 8px;
+    padding: 11px 8px;
+  }
+
+  .capture-file-action {
+    padding: 7px;
+    font-size: 9px;
+  }
+}
