@@ -552,3 +552,190 @@
     font-size: 9px;
   }
 }
+
+
+/* Formulário de edição de capturas */
+
+.capture-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  margin-top: 16px;
+}
+
+.capture-edit-form h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: 1.35rem;
+  line-height: 1.3;
+}
+
+.capture-edit-form .capture-field-label {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  width: 100%;
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.capture-edit-input,
+.capture-edit-textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fffdf7;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.capture-edit-input {
+  min-height: 46px;
+}
+
+.capture-edit-textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.capture-edit-input:focus-visible,
+.capture-edit-textarea:focus-visible {
+  outline: none;
+  border-color: var(--ink);
+  box-shadow: 0 0 0 3px rgba(255, 211, 77, 0.4);
+}
+
+.capture-edit-input:disabled,
+.capture-edit-textarea:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Seleção de temas */
+
+.capture-edit-themes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+}
+
+.capture-edit-themes legend {
+  padding: 0 6px;
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.capture-edit-themes > p {
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.9rem;
+}
+
+.capture-edit-theme-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #fffdf7;
+  color: var(--ink);
+  font-size: 0.85rem;
+  line-height: 1.4;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.capture-edit-theme-option:has(input:checked) {
+  background: #fff3c5;
+}
+
+.capture-edit-theme-option:focus-within {
+  box-shadow: 0 0 0 3px rgba(255, 211, 77, 0.4);
+}
+
+.capture-edit-theme-option input {
+  flex-shrink: 0;
+  margin: 0;
+  accent-color: var(--ink);
+  cursor: pointer;
+}
+
+/* Botões de edição */
+
+.capture-edit-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.capture-edit-actions .modal-submit,
+.capture-edit-entry .modal-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.capture-edit-actions button {
+  min-height: 42px;
+}
+
+.capture-edit-actions button:disabled,
+.capture-edit-entry button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.capture-edit-entry {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.capture-edit-entry .demo-notice {
+  margin: 0;
+}
+
+@media (max-width: 480px) {
+  .capture-edit-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .capture-edit-actions button {
+    width: 100%;
+  }
+
+  .capture-edit-entry .modal-submit {
+    width: 100%;
+  }
+
+  .capture-edit-themes {
+    padding: 10px;
+  }
+}

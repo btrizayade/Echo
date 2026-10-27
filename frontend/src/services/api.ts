@@ -28,6 +28,12 @@ export type CreateCapturePayload = {
   theme_ids?: number[];
 };
 
+export type UpdateCapturePayload = {
+  title?: string;
+  content?: string;
+  theme_ids?: number[];
+};
+
 export type ApiRescueEvent = {
   id: number;
   capture_id: number;
@@ -109,6 +115,16 @@ export function createCapture(
 ): Promise<ApiCapture> {
   return request<ApiCapture>("/captures", {
     method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function updateCapture(
+  id: number,
+  payload: UpdateCapturePayload,
+): Promise<ApiCapture> {
+  return request<ApiCapture>(`/captures/${id}`, {
+    method: "PATCH",
     body: JSON.stringify(payload),
   });
 }

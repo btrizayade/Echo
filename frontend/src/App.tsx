@@ -1,5 +1,6 @@
 
 import { useMemo, useState } from "react";
+
 import {
   AlertCircle,
   LoaderCircle,
@@ -202,6 +203,15 @@ function App() {
 
     void refresh();
     void refreshRescues();
+  }
+
+  // Atualiza as capturas, os temas e os resgates após uma edição.
+  async function handleCaptureUpdated(): Promise<void> {
+    await Promise.all([
+      refresh(),
+      refreshThemes(),
+      refreshRescues(),
+    ]);
   }
 
   function handleCaptureComplete() {
@@ -428,6 +438,7 @@ function App() {
           capture={selectedCapture}
           onClose={() => setSelectedCapture(null)}
           onDelete={() => handleDeleteCapture(selectedCapture.id)}
+          onUpdated={handleCaptureUpdated}
           onRescue={
             canOfferRescue ? handleRecordRescue : undefined
           }

@@ -11,7 +11,11 @@ from app.database.database import get_db
 from app.models.capture import Capture
 from app.models.rescue_event import RescueEvent
 from app.models.theme import Theme
-from app.schemas.capture import CaptureCreate, CaptureResponse
+from app.schemas.capture import (
+    CaptureCreate,
+    CaptureResponse,
+    CaptureUpdate,
+)
 
 
 router = APIRouter(
@@ -125,6 +129,115 @@ def get_capture(
         )
 
     return capture
+
+
+@router.patch(
+    "/{capture_id}",
+    response_model=CaptureResponse,
+)
+def update_capture(
+    capture_id: int,
+    updates: CaptureUpdate,
+    db: Session = Depends(get_db),
+):
+    capture = db.get(Capture, capture_id)
+
+    if capture is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Capture not found",
+        )
+
+    # Identifica quais campos foram enviados na requisição.
+    fields = updates.model_fields_set
+
+    # Permite uma requisição sem alterações.
+    if not fields:
+        return capture
+
+    # Atualiza o título somente se ele foi enviado.
+    if "title" in fields:
+        if updates.title is None:
+            raise HTTPException(
+                status_code=422,
+                detail="Title cannot be null",
+            )
+
+        capture.title = updates.title
+
+    # Atualiza o conteúdo somente se ele foi enviado.
+    if "content" in fields:
+        if updates.content is None:
+            raise HTTPException(
+                status_code=422,
+                detail="Content cannot be null",
+            )
+
+        capture.content = updates.content
+
+    # Capturas de texto precisam continuar tendo conteúdo.
+    if capture.type == "text" and not capture.content.strip():
+        raise HTTPException(
+            status_code=422,
+            detail="Text captures require non-empty content",
+        )
+
+    # Atualiza os temas somente quando theme_ids foi enviado.
+    if "theme_ids" in fields:
+        if updates.theme_ids is None:
+            raise HTTPException(
+                status_code=422,
+                detail="Theme IDs cannot be null",
+            )
+
+        if len(updates.theme_ids) != len(set(updates.theme_ids)):
+            raise HTTPException(
+                status_code=422,
+                detail="Duplicate theme IDs are not allowed",
+            )
+
+        themes = []
+
+        if updates.theme_ids:
+            statement = select(Theme).where(
+                Theme.id.in_(updates.theme_ids)
+            )
+
+            result = db.execute(statement).scalars().all()
+
+            themes_by_id = {
+                theme.id: theme for theme in result
+            }
+
+            missing_ids = [
+                theme_id
+                for theme_id in updates.theme_ids
+                if theme_id not in themes_by_id
+            ]
+
+            if missing_ids:
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Theme IDs not found: {missing_ids}",
+                )
+
+            # Preserva a ordem dos temas enviados.
+            themes = [
+                themes_by_id[theme_id]
+                for theme_id in updates.theme_ids
+            ]
+
+        capture.themes = themes
+
+    try:
+        db.commit()
+        db.refresh(capture)
+    except Exception:
+        db.rollback()
+        raise
+
+    return capture
+
 
 @router.delete(
     "/{capture_id}",

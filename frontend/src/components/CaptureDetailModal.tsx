@@ -8,14 +8,21 @@ import {
   Tags,
   Trash2,
   X,
+  Pencil,
+  Check,
 } from "lucide-react";
 
 import { CaptureVisual } from "./CaptureVisual";
 import { typeLabels } from "../data/captures";
 import type { Capture } from "../types/capture";
 import {
+  getCapture,
   listCaptureAssets,
+  listThemes,
   getAssetFileUrl,
+  updateCapture,
+  type ApiTheme,
+  type UpdateCapturePayload,
 } from "../services/api";
 
 type CaptureDetailModalProps = {
@@ -26,6 +33,7 @@ type CaptureDetailModalProps = {
   rescueRecorded?: boolean;
   rescueError?: string | null;
   onDelete?: () => Promise<void>;
+  onUpdated?: () => Promise<void> | void;
 };
 
 export default function CaptureDetailModal({
@@ -33,6 +41,7 @@ export default function CaptureDetailModal({
   onClose,
   onRescue,
   onDelete,
+  onUpdated,
   isRescuing = false,
   rescueRecorded = false,
   rescueError = null,
@@ -40,9 +49,26 @@ export default function CaptureDetailModal({
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [audioLoading, setAudioLoading] = useState(false);
   const [audioError, setAudioError] = useState(false);
+
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [isLoadingEdit, setIsLoadingEdit] = useState(false);
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
+
+  const [availableThemes, setAvailableThemes] = useState<ApiTheme[]>([]);
+  const [selectedThemeIds, setSelectedThemeIds] = useState<number[]>([]);
+
+  const [editTitle, setEditTitle] = useState(capture.title);
+  const [editContent, setEditContent] = useState(capture.content);
+
+  const [displayTitle, setDisplayTitle] = useState(capture.title);
+  const [displayContent, setDisplayContent] = useState(capture.content);
+  const [displayTheme, setDisplayTheme] = useState(capture.theme);
+
+  const [editError, setEditError] = useState<string | null>(null);
 
   async function handleDelete() {
     if (!onDelete) return;
@@ -56,11 +82,123 @@ export default function CaptureDetailModal({
       setDeleteError(
         error instanceof Error
           ? error.message
-          : "Não foi possível excluir esta ideia."
+          : "Não foi possível excluir esta ideia.",
       );
     } finally {
       setIsDeleting(false);
     }
+  }
+
+  async function handleStartEditing() {
+    setIsLoadingEdit(true);
+    setEditError(null);
+
+    try {
+      const [themes, latestCapture] = await Promise.all([
+        listThemes(),
+        getCapture(capture.id),
+      ]);
+
+      setAvailableThemes(themes);
+      setSelectedThemeIds(
+        latestCapture.themes.map((theme) => theme.id),
+      );
+
+      setEditTitle(latestCapture.title);
+      setEditContent(latestCapture.content);
+      setDisplayTitle(latestCapture.title);
+      setDisplayContent(latestCapture.content);
+      setDisplayTheme(
+        latestCapture.themes.map((theme) => theme.name).join(", ") ||
+          "Sem tema",
+      );
+
+      setIsEditing(true);
+    } catch (error) {
+      setEditError(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível carregar os dados para edição.",
+      );
+    } finally {
+      setIsLoadingEdit(false);
+    }
+  }
+
+  function handleCancelEditing() {
+    setEditTitle(displayTitle);
+    setEditContent(displayContent);
+    setEditError(null);
+    setIsEditing(false);
+  }
+
+  async function handleSaveEdit() {
+    const title = editTitle.trim();
+    const content = editContent.trim();
+
+    if (!title) {
+      setEditError("O título não pode ficar vazio.");
+      return;
+    }
+
+    if (capture.type === "text" && !content) {
+      setEditError("Capturas de texto precisam ter conteúdo.");
+      return;
+    }
+
+    if (!content && displayContent.trim()) {
+      setEditError(
+        "O conteúdo não pode ficar vazio. Mantenha algum texto ou restaure o conteúdo original.",
+      );
+      return;
+    }
+
+    const payload: UpdateCapturePayload = {
+      title,
+      theme_ids: selectedThemeIds,
+    };
+
+    if (content) {
+      payload.content = content;
+    }
+
+    setIsSavingEdit(true);
+    setEditError(null);
+
+    try {
+      const updated = await updateCapture(capture.id, payload);
+
+      setDisplayTitle(updated.title);
+      setDisplayContent(updated.content);
+      setDisplayTheme(
+        updated.themes.map((theme) => theme.name).join(", ") ||
+          "Sem tema",
+      );
+
+      setEditTitle(updated.title);
+      setEditContent(updated.content);
+      setIsEditing(false);
+
+      await onUpdated?.();
+    } catch (error) {
+      setEditError(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível salvar as alterações.",
+      );
+    } finally {
+      setIsSavingEdit(false);
+    }
+  }
+
+  function toggleTheme(themeId: number, checked: boolean) {
+    setSelectedThemeIds((current) =>
+      checked
+        ? current.includes(themeId)
+          ? current
+          : [...current, themeId]
+        : current.filter((id) => id !== themeId),
+    );
   }
 
   useEffect(() => {
@@ -82,8 +220,9 @@ export default function CaptureDetailModal({
     async function loadAudio() {
       try {
         const assets = await listCaptureAssets(capture.id);
+
         const audioAsset = assets.find(
-          (asset) => asset.media_type === "audio"
+          (asset) => asset.media_type === "audio",
         );
 
         if (!cancelled) {
@@ -96,7 +235,7 @@ export default function CaptureDetailModal({
       } catch (error) {
         console.error(
           "Não foi possível carregar o áudio da captura:",
-          error
+          error,
         );
 
         if (!cancelled) {
@@ -178,7 +317,7 @@ export default function CaptureDetailModal({
                   controls
                   preload="metadata"
                   src={audioUrl}
-                  aria-label={`Reproduzir áudio: ${capture.title}`}
+                  aria-label={`Reproduzir áudio: ${displayTitle}`}
                   style={{
                     display: "block",
                     width: "100%",
@@ -206,74 +345,191 @@ export default function CaptureDetailModal({
           {typeLabels[capture.type]}
         </span>
 
-        <h2 id="detail-heading">{capture.title}</h2>
+        {isEditing ? (
+          <div className="capture-edit-form">
+            <h2 id="detail-heading">Editar ideia</h2>
 
-        <p className="detail-content">
-          {capture.content || "Nenhuma anotação textual associada."}
-        </p>
+            <label className="capture-field-label">
+              Título
 
-        <div className="detail-footer">
-          <span className="theme-tag">
-            <Tags size={13} />
-            {capture.theme}
-          </span>
+              <input
+                className="capture-edit-input"
+                type="text"
+                value={editTitle}
+                onChange={(event) => setEditTitle(event.target.value)}
+                maxLength={180}
+                required
+              />
+            </label>
 
-          <span>
-            <Clock3 size={14} />
-            {capture.age}
-          </span>
-        </div>
+            <label className="capture-field-label">
+              Conteúdo ou contexto
 
-          {onDelete && (
-  <div className="delete-capture-section">
-    {confirmDelete ? (
-      <div className="delete-capture-confirmation">
-        <p>
-          Excluir esta ideia permanentemente? Os arquivos de mídia
-          associados também serão removidos.
-        </p>
+              <textarea
+                className="capture-edit-textarea"
+                value={editContent}
+                onChange={(event) => setEditContent(event.target.value)}
+                required={capture.type === "text"}
+                rows={5}
+              />
+            </label>
 
-        <div className="delete-capture-actions">
-          <button
-            type="button"
-            className="delete-cancel-button"
-            onClick={() => setConfirmDelete(false)}
-            disabled={isDeleting}
-          >
-            Cancelar
-          </button>
+            <fieldset className="capture-edit-themes">
+              <legend>Temas</legend>
 
-          <button
-            type="button"
-            className="delete-confirm-button"
-            onClick={handleDelete}
-            disabled={isDeleting}
-          >
-            <Trash2 size={16} />
-            {isDeleting ? "Excluindo..." : "Excluir definitivamente"}
-          </button>
-        </div>
-      </div>
-    ) : (
-      <button
-        type="button"
-        className="delete-capture-button"
-        onClick={() => setConfirmDelete(true)}
-      >
-        <Trash2 size={16} />
-        Excluir ideia
-      </button>
-    )}
+              {availableThemes.length === 0 ? (
+                <p>Nenhum tema cadastrado.</p>
+              ) : (
+                availableThemes.map((theme) => (
+                  <label
+                    className="capture-edit-theme-option"
+                    key={theme.id}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedThemeIds.includes(theme.id)}
+                      onChange={(event) =>
+                        toggleTheme(theme.id, event.target.checked)
+                      }
+                    />
 
-    {deleteError && (
-      <p className="demo-notice" role="alert">
-        Não foi possível excluir: {deleteError}
-      </p>
-    )}
-  </div>
-)}
+                    {theme.name}
+                  </label>
+                ))
+              )}
+            </fieldset>
 
-        {onRescue && (
+            {editError && (
+              <p className="demo-notice" role="alert">
+                {editError}
+              </p>
+            )}
+
+            <div className="capture-edit-actions">
+              <button
+                className="delete-cancel-button"
+                type="button"
+                onClick={handleCancelEditing}
+                disabled={isSavingEdit}
+              >
+                Cancelar
+              </button>
+
+              <button
+                className="modal-submit"
+                type="button"
+                onClick={() => void handleSaveEdit()}
+                disabled={isSavingEdit || isLoadingEdit}
+              >
+                {isSavingEdit ? (
+                  "Salvando..."
+                ) : (
+                  <>
+                    <Check size={16} />
+                    Salvar alterações
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <h2 id="detail-heading">{displayTitle}</h2>
+
+            <p className="detail-content">
+              {displayContent || "Nenhuma anotação textual associada."}
+            </p>
+
+            <div className="detail-footer">
+              <span className="theme-tag">
+                <Tags size={13} />
+                {displayTheme}
+              </span>
+
+              <span>
+                <Clock3 size={14} />
+                {capture.age}
+              </span>
+            </div>
+
+            <div className="capture-edit-entry">
+              <button
+                className="modal-submit"
+                type="button"
+                onClick={() => void handleStartEditing()}
+                disabled={isLoadingEdit}
+              >
+                {isLoadingEdit ? (
+                  "Carregando..."
+                ) : (
+                  <>
+                    <Pencil size={16} />
+                    Editar ideia
+                  </>
+                )}
+              </button>
+
+              {editError && (
+                <p className="demo-notice" role="alert">
+                  {editError}
+                </p>
+              )}
+            </div>
+          </>
+        )}
+
+        {!isEditing && onDelete && (
+          <div className="delete-capture-section">
+            {confirmDelete ? (
+              <div className="delete-capture-confirmation">
+                <p>
+                  Excluir esta ideia permanentemente? Os arquivos de mídia
+                  associados também serão removidos.
+                </p>
+
+                <div className="delete-capture-actions">
+                  <button
+                    type="button"
+                    className="delete-cancel-button"
+                    onClick={() => setConfirmDelete(false)}
+                    disabled={isDeleting}
+                  >
+                    Cancelar
+                  </button>
+
+                  <button
+                    type="button"
+                    className="delete-confirm-button"
+                    onClick={() => void handleDelete()}
+                    disabled={isDeleting}
+                  >
+                    <Trash2 size={16} />
+                    {isDeleting
+                      ? "Excluindo..."
+                      : "Excluir definitivamente"}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                className="delete-capture-button"
+                onClick={() => setConfirmDelete(true)}
+              >
+                <Trash2 size={16} />
+                Excluir ideia
+              </button>
+            )}
+
+            {deleteError && (
+              <p className="demo-notice" role="alert">
+                Não foi possível excluir: {deleteError}
+              </p>
+            )}
+          </div>
+        )}
+
+        {!isEditing && onRescue && (
           <div className="rescue-action">
             {rescueRecorded ? (
               <p className="demo-notice" role="status">
@@ -291,6 +547,7 @@ export default function CaptureDetailModal({
                   {isRescuing
                     ? "Registrando resgate..."
                     : "Resgatar esta ideia"}
+
                   <ArrowUpRight size={16} />
                 </button>
 

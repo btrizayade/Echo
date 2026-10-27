@@ -49,6 +49,34 @@ class CaptureCreate(BaseModel):
         return self
 
 
+class CaptureUpdate(BaseModel):
+    title: str | None = None
+    content: str | None = None
+    theme_ids: list[int] | None = None
+
+    @field_validator("title")
+    @classmethod
+    def title_must_not_be_blank(
+        cls,
+        value: str | None,
+    ) -> str | None:
+        if value is not None and not value.strip():
+            raise ValueError("Title cannot be blank.")
+
+        return value.strip() if value is not None else None
+
+    @field_validator("content")
+    @classmethod
+    def content_must_not_be_blank(
+        cls,
+        value: str | None,
+    ) -> str | None:
+        if value is not None and not value.strip():
+            raise ValueError("Content cannot be blank.")
+
+        return value
+
+
 class ThemeSummary(BaseModel):
     id: int
     name: str
