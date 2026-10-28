@@ -1,4 +1,3 @@
-
 import { useMemo, useState } from "react";
 
 import {
@@ -25,6 +24,8 @@ import { useRescues } from "./hooks/useRescues";
 
 import {
   deleteCapture,
+  deleteTheme,
+  updateTheme,
   uploadCaptureAsset,
   type CreateCapturePayload,
 } from "./services/api";
@@ -205,11 +206,56 @@ function App() {
     void refreshRescues();
   }
 
-  // Atualiza as capturas, os temas e os resgates após uma edição.
+  // Atualiza capturas, temas e resgates após uma edição.
   async function handleCaptureUpdated(): Promise<void> {
     await Promise.all([
       refresh(),
       refreshThemes(),
+      refreshRescues(),
+    ]);
+  }
+
+  // Renomeia um tema e atualiza os dados exibidos.
+  async function handleRenameTheme(
+    themeId: number,
+    newName: string,
+  ): Promise<void> {
+    const currentTheme = apiThemes.find(
+      (theme) => theme.id === themeId,
+    );
+
+    await updateTheme(themeId, newName);
+
+    // Mantém o filtro selecionado sincronizado com o novo nome.
+    if (currentTheme && activeTheme === currentTheme.name) {
+      setActiveTheme(newName);
+    }
+
+    await Promise.all([
+      refreshThemes(),
+      refresh(),
+      refreshRescues(),
+    ]);
+  }
+
+  // Exclui um tema e atualiza os dados exibidos.
+  async function handleDeleteTheme(
+    themeId: number,
+  ): Promise<void> {
+    const currentTheme = apiThemes.find(
+      (theme) => theme.id === themeId,
+    );
+
+    await deleteTheme(themeId);
+
+    // Se o tema excluído estava selecionado, volta para Todos.
+    if (currentTheme && activeTheme === currentTheme.name) {
+      setActiveTheme("Todos");
+    }
+
+    await Promise.all([
+      refreshThemes(),
+      refresh(),
       refreshRescues(),
     ]);
   }
@@ -317,9 +363,11 @@ function App() {
           {activeSection === "Temas" && (
             <>
               <ThemeFilterPanel
-                themes={themes}
+                themes={apiThemes}
                 activeTheme={activeTheme}
                 onThemeChange={setActiveTheme}
+                onRenameTheme={handleRenameTheme}
+                onDeleteTheme={handleDeleteTheme}
               />
 
               {themesLoading && (

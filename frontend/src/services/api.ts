@@ -168,6 +168,22 @@ export function createTheme(name: string): Promise<ApiTheme> {
   });
 }
 
+export function updateTheme(
+  id: number,
+  name: string,
+): Promise<ApiTheme> {
+  return request<ApiTheme>(`/themes/${id}`, {
+    method: "PATCH",
+    body: JSON.stringify({ name }),
+  });
+}
+
+export function deleteTheme(id: number): Promise<void> {
+  return request<void>(`/themes/${id}`, {
+    method: "DELETE",
+  });
+}
+
 export function listThemeCaptures(
   themeId: number,
 ): Promise<ApiCapture[]> {

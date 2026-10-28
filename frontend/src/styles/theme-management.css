@@ -1,0 +1,436 @@
+/* ========================================
+   PAINEL DE TEMAS — ESTRUTURA E CABEÇALHO
+======================================== */
+
+.theme-filter-panel .theme-filter-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  width: 100%;
+}
+
+.theme-filter-panel .theme-filter-heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.theme-filter-panel .theme-filter-heading .eyebrow {
+  margin-bottom: 8px;
+}
+
+.theme-filter-panel .theme-filter-heading h2 {
+  margin-top: 0;
+}
+
+.theme-filter-panel .theme-management-description {
+  margin: 8px 0 0;
+  color: #746b5b;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* Botão de gerenciamento no canto superior direito */
+
+.theme-filter-panel .theme-management-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-shrink: 0;
+
+  min-width: 38px;
+  min-height: 38px;
+  padding: 9px;
+
+  color: #514735;
+  background: #fffaf0;
+  border: 1px solid #e8dfcd;
+  border-radius: 10px;
+
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.theme-filter-panel .theme-management-toggle:hover {
+  color: #29271f;
+  background: #f8e8b5;
+  border-color: #dfc56f;
+}
+
+.theme-filter-panel .theme-management-toggle.is-active {
+  padding: 9px 13px;
+  color: #fffaf0;
+  background: #29271f;
+  border-color: #29271f;
+}
+
+.theme-filter-panel
+  .theme-management-toggle.is-active:hover {
+  background: #494437;
+  border-color: #494437;
+}
+
+/* Foco visível para navegação por teclado */
+
+.theme-filter-panel .theme-management-toggle:focus-visible,
+.theme-filter-panel .theme-management-button:focus-visible,
+.theme-filter-panel .theme-inline-actions button:focus-visible {
+  outline: 2px solid #b68c25;
+  outline-offset: 3px;
+}
+
+
+/* ========================================
+   MODO NORMAL — EXPLORAR TEMAS
+======================================== */
+
+.theme-filter-panel .theme-pills {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+
+/* ========================================
+   MODO DE GERENCIAMENTO
+======================================== */
+
+.theme-filter-panel .theme-management-list {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-top: 8px;
+
+  border: 1px solid #e8dfcd;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.theme-filter-panel .theme-management-item {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+
+  background: #fffdf8;
+  border-bottom: 1px solid #e8dfcd;
+}
+
+.theme-filter-panel .theme-management-item:last-child {
+  border-bottom: none;
+}
+
+/* Linha de cada tema */
+
+.theme-filter-panel .theme-management-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 13px 16px;
+}
+
+.theme-filter-panel .theme-management-item-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+
+  color: #625b4b;
+}
+
+.theme-filter-panel .theme-management-item-name {
+  min-width: 0;
+  color: #29271f;
+  font-size: 0.95rem;
+  font-weight: 500;
+
+  overflow-wrap: anywhere;
+}
+
+/* Ações ficam visíveis somente no modo de gerenciamento */
+
+.theme-filter-panel .theme-management-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.theme-filter-panel .theme-management-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  width: 34px;
+  height: 34px;
+  padding: 0;
+
+  color: #625b4b;
+  background: #fffaf0;
+  border: 1px solid #e8dfcd;
+  border-radius: 9px;
+
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.theme-filter-panel .theme-management-button:hover:not(:disabled) {
+  color: #29271f;
+  background: #f8e8b5;
+  border-color: #dfc56f;
+}
+
+.theme-filter-panel .theme-management-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Estado vazio */
+
+.theme-filter-panel .theme-management-empty {
+  margin: 0;
+  padding: 20px 16px;
+  color: #746b5b;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+
+/* ========================================
+   EDIÇÃO E CONFIRMAÇÃO DE EXCLUSÃO
+======================================== */
+
+.theme-filter-panel .theme-inline-editor {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+
+  width: auto;
+  min-width: 0;
+  max-width: none;
+  margin: 0;
+  padding: 14px 16px 16px;
+
+  background: #f8f4ea;
+  border: none;
+  border-top: 1px solid #e8dfcd;
+  border-radius: 0;
+  box-shadow: none;
+  box-sizing: border-box;
+}
+
+.theme-filter-panel .theme-inline-editor label {
+  color: #625b4b;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.theme-filter-panel .theme-inline-editor input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: 10px 12px;
+
+  color: #29271f;
+  background: #fffdf8;
+  border: 1px solid #ded4bf;
+  border-radius: 8px;
+
+  font: inherit;
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.theme-filter-panel .theme-inline-editor input:focus {
+  border-color: #c8a746;
+  box-shadow: 0 0 0 3px rgb(200 167 70 / 15%);
+}
+
+.theme-filter-panel .theme-inline-editor input:disabled {
+  opacity: 0.65;
+  cursor: wait;
+}
+
+/* Mensagem de confirmação de exclusão */
+
+.theme-filter-panel .theme-inline-editor p {
+  margin: 0;
+  color: #494437;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+/* Botões dos formulários */
+
+.theme-filter-panel .theme-inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+}
+
+.theme-filter-panel .theme-inline-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  min-height: 36px;
+  padding: 8px 12px;
+
+  color: #494437;
+  background: #fffdf8;
+  border: 1px solid #ded4bf;
+  border-radius: 8px;
+
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.theme-filter-panel
+  .theme-inline-actions
+  button:hover:not(:disabled) {
+  background: #f5edda;
+  border-color: #cbbd9e;
+}
+
+.theme-filter-panel .theme-inline-actions button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Destaca a ação principal */
+
+.theme-filter-panel .theme-inline-actions button:last-child {
+  color: #29271f;
+  background: #f1d77f;
+  border-color: #e4c65e;
+}
+
+.theme-filter-panel
+  .theme-inline-actions
+  button:last-child:hover:not(:disabled) {
+  background: #e9ca65;
+  border-color: #d8b64a;
+}
+
+
+/* ========================================
+   MENSAGENS DE ERRO
+======================================== */
+
+.theme-filter-panel .theme-management-error {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+
+  color: #8f352c;
+  background: #fff0ed;
+  border: 1px solid #f0c9c2;
+  border-radius: 8px;
+
+  font-size: 0.88rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+
+/* ========================================
+   RESPONSIVIDADE
+======================================== */
+
+@media (max-width: 600px) {
+  .theme-filter-panel .theme-filter-header {
+    gap: 12px;
+  }
+
+  .theme-filter-panel .theme-management-toggle {
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  .theme-filter-panel .theme-pills {
+    gap: 8px;
+  }
+
+  .theme-filter-panel .theme-management-row {
+    gap: 10px;
+    padding: 12px;
+  }
+
+  .theme-filter-panel .theme-management-item-main {
+    gap: 8px;
+  }
+
+  .theme-filter-panel .theme-management-actions {
+    gap: 5px;
+  }
+
+  .theme-filter-panel .theme-management-button {
+    width: 32px;
+    height: 32px;
+  }
+
+  .theme-filter-panel .theme-inline-editor {
+    padding: 12px;
+  }
+
+  .theme-filter-panel .theme-inline-actions {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 380px) {
+  .theme-filter-panel .theme-filter-header {
+    gap: 8px;
+  }
+
+  .theme-filter-panel .theme-management-description {
+    font-size: 0.82rem;
+  }
+
+  .theme-filter-panel .theme-management-row {
+    align-items: flex-start;
+  }
+
+  .theme-filter-panel .theme-management-item-main {
+    padding-top: 8px;
+  }
+}
