@@ -804,3 +804,197 @@
   opacity: 0.55;
   cursor: not-allowed;
 }
+
+/* ========================================
+   SELEÇÃO DE MÚLTIPLOS TEMAS NA CRIAÇÃO
+======================================== */
+
+.new-capture-modal .capture-theme-section {
+  min-width: 0;
+  margin-top: 5px;
+  padding: 13px;
+
+  border: 1.5px solid var(--line);
+  border-radius: 12px;
+  background: #fffdf7;
+}
+
+/* Título da seção */
+
+.new-capture-modal .capture-theme-section .capture-field-label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+
+  margin: 0;
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.new-capture-modal .capture-theme-section .capture-field-label svg {
+  flex-shrink: 0;
+}
+
+.new-capture-modal
+  .capture-theme-section
+  .capture-field-label
+  span {
+  color: #888175;
+  font-size: 10px;
+  font-weight: 400;
+}
+
+/* Texto auxiliar */
+
+.new-capture-modal .capture-theme-description {
+  margin: 6px 0 12px;
+  color: #81796b;
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+/* Lista flexível de temas */
+
+.new-capture-modal .capture-theme-options {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 8px;
+
+  min-width: 0;
+}
+
+/* Cada tema funciona como uma opção selecionável */
+
+.new-capture-modal .modal-card form .capture-theme-option,
+.modal-card form .capture-theme-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+
+  width: auto;
+  max-width: 100%;
+  min-width: 0;
+  min-height: 35px;
+  margin: 0;
+  padding: 8px 10px;
+
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: #fffef9;
+  color: var(--ink);
+
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.4;
+
+  cursor: pointer;
+  overflow-wrap: anywhere;
+
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    opacity 160ms ease;
+}
+
+/* Checkbox: desfaz as regras gerais dos inputs do modal */
+
+.new-capture-modal .capture-theme-checkbox {
+  flex: 0 0 auto;
+
+  width: 14px !important;
+  height: 14px;
+  min-width: 14px;
+  margin: 0;
+  padding: 0 !important;
+
+  border: initial;
+  border-radius: 3px;
+  background: transparent;
+
+  accent-color: var(--ink);
+  cursor: pointer;
+}
+
+/* Nome e ícone de confirmação */
+
+.new-capture-modal .capture-theme-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.new-capture-modal .capture-theme-check {
+  flex-shrink: 0;
+  color: var(--ink);
+}
+
+/* Estados selecionado, hover e foco */
+
+.new-capture-modal
+  .modal-card
+  form
+  .capture-theme-option.is-selected,
+.modal-card form .capture-theme-option.is-selected {
+  border-color: var(--ink);
+  background: #fff3c5;
+  box-shadow: 1px 1px 0 var(--ink);
+}
+
+.new-capture-modal
+  .capture-theme-option:hover:not(.is-disabled) {
+  border-color: var(--ink);
+  background-color: #fff9e8;
+}
+
+.new-capture-modal .capture-theme-option:focus-within {
+  outline: 2px solid var(--yellow);
+  outline-offset: 2px;
+}
+
+.new-capture-modal .capture-theme-option.is-disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.new-capture-modal .capture-theme-checkbox:disabled {
+  cursor: not-allowed;
+}
+
+/* Estado sem temas cadastrados */
+
+.new-capture-modal .capture-theme-empty {
+  margin: 0;
+  color: #81796b;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+/* Quantidade selecionada */
+
+.new-capture-modal .capture-theme-selection-count {
+  margin: 11px 0 0;
+  color: #74613b;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+/* Telas pequenas */
+
+@media (max-width: 400px) {
+  .new-capture-modal .capture-theme-section {
+    padding: 10px;
+  }
+
+  .new-capture-modal .capture-theme-options {
+    gap: 6px;
+  }
+
+  .new-capture-modal .modal-card form .capture-theme-option,
+  .modal-card form .capture-theme-option {
+    padding: 7px 8px;
+    font-size: 10px;
+  }
+}

@@ -1,4 +1,3 @@
-
 import type { ApiCapture } from "../services/api";
 import type { Capture } from "../types/capture";
 
@@ -22,7 +21,9 @@ function getElapsedDays(dateString: string): number {
 
   return Math.max(
     0,
-    Math.floor((Date.now() - timestamp) / MILLISECONDS_PER_DAY),
+    Math.floor(
+      (Date.now() - timestamp) / MILLISECONDS_PER_DAY,
+    ),
   );
 }
 
@@ -48,12 +49,18 @@ export function mapApiCaptureToCapture(
   const referenceDate =
     apiCapture.last_revisited_at ?? apiCapture.created_at;
 
+  // Preserva todos os temas associados à captura.
+  const themes = (apiCapture.themes ?? []).map(
+    (theme) => theme.name,
+  );
+
   return {
     id: apiCapture.id,
     type: apiCapture.type,
     title: apiCapture.title,
     content: apiCapture.content,
-    theme: apiCapture.themes[0]?.name ?? "Sem tema",
+    themes,
+    theme: themes[0] ?? "Sem tema",
     age: formatAge(apiCapture.created_at),
     daysUnattended: getElapsedDays(referenceDate),
     accent: accents[(apiCapture.id - 1) % accents.length],

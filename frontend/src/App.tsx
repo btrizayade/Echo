@@ -135,7 +135,9 @@ function App() {
 
     if (activeSection === "Temas" && activeTheme !== "Todos") {
       results = results.filter(
-        (capture) => capture.theme === activeTheme,
+        (capture) =>
+          capture.themes.includes(activeTheme) ||
+          capture.theme === activeTheme,
       );
     }
 
@@ -148,6 +150,7 @@ function App() {
         [
           capture.title,
           capture.content,
+          ...capture.themes,
           capture.theme,
           typeLabels[capture.type],
         ]
@@ -486,6 +489,8 @@ function App() {
           onCreate={handleCreateCapture}
           onUpload={handleUpload}
           onComplete={handleCaptureComplete}
+          themes={apiThemes}
+          themesLoading={themesLoading}
         />
       )}
 

@@ -1,5 +1,5 @@
-
 import { useState, type FormEvent } from "react";
+
 import {
   ArrowUpRight,
   AudioLines,
@@ -9,9 +9,14 @@ import {
   Lightbulb,
   Upload,
   X,
+  Tags,
 } from "lucide-react";
 
-import type { CreateCapturePayload } from "../services/api";
+import type {
+  ApiTheme,
+  CreateCapturePayload,
+} from "../services/api";
+
 import type { Capture, CaptureType } from "../types/capture";
 
 type NewCaptureModalProps = {
@@ -19,6 +24,8 @@ type NewCaptureModalProps = {
   onCreate: (payload: CreateCapturePayload) => Promise<Capture>;
   onUpload: (captureId: number, file: File) => Promise<void>;
   onComplete: () => void;
+  themes: ApiTheme[];
+  themesLoading: boolean;
 };
 
 const MAX_FILE_SIZE = 25 * 1024 * 1024;
@@ -42,14 +49,20 @@ export default function NewCaptureModal({
   onCreate,
   onUpload,
   onComplete,
+  themes,
+  themesLoading,
 }: NewCaptureModalProps) {
   const [draftType, setDraftType] = useState<CaptureType>("text");
   const [draftTitle, setDraftTitle] = useState("");
   const [draftContent, setDraftContent] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  const [selectedThemeIds, setSelectedThemeIds] = useState<number[]>([]);
+
   const [pendingCaptureId, setPendingCaptureId] = useState<number | null>(
-    null
+    null,
   );
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -61,6 +74,18 @@ export default function NewCaptureModal({
 
     setDraftType(type);
     setSelectedFile(null);
+    setSubmitError(null);
+  }
+
+  function handleThemeToggle(themeId: number) {
+    if (isTypeLocked) return;
+
+    setSelectedThemeIds((current) =>
+      current.includes(themeId)
+        ? current.filter((id) => id !== themeId)
+        : [...current, themeId],
+    );
+
     setSubmitError(null);
   }
 
@@ -90,7 +115,7 @@ export default function NewCaptureModal({
       setSubmitError(
         draftType === "image"
           ? "Selecione uma imagem para continuar."
-          : "Selecione um arquivo de áudio para continuar."
+          : "Selecione um arquivo de áudio para continuar.",
       );
       return;
     }
@@ -110,6 +135,7 @@ export default function NewCaptureModal({
         const payload: CreateCapturePayload = {
           type: draftType,
           title: cleanTitle,
+          theme_ids: selectedThemeIds,
           ...(cleanContent ? { content: cleanContent } : {}),
         };
 
@@ -133,7 +159,7 @@ export default function NewCaptureModal({
       setSubmitError(
         captureId !== null
           ? `A captura já foi criada, mas o arquivo não foi enviado. ${getErrorMessage(error)} Selecione o arquivo novamente e tente enviar; não criaremos outra captura.`
-          : getErrorMessage(error)
+          : getErrorMessage(error),
       );
     } finally {
       setIsSubmitting(false);
@@ -144,7 +170,10 @@ export default function NewCaptureModal({
     <div
       className="modal-backdrop"
       onMouseDown={(event) => {
-        if (event.target === event.currentTarget && !isSubmitting) {
+        if (
+          event.target === event.currentTarget &&
+          !isSubmitting
+        ) {
           onClose();
         }
       }}
@@ -303,6 +332,7 @@ export default function NewCaptureModal({
             {draftType === "text"
               ? "O que você quer guardar?"
               : "Descrição ou contexto"}
+
             {draftType !== "text" && <span>opcional</span>}
           </label>
 
@@ -320,9 +350,85 @@ export default function NewCaptureModal({
             disabled={isTypeLocked}
           />
 
+          {/* Seleção de múltiplos temas */}
+          <div
+            className="capture-theme-section"
+            role="group"
+            aria-labelledby="capture-theme-label"
+          >
+            <p
+              id="capture-theme-label"
+              className="capture-field-label"
+            >
+              <Tags size={15} />
+              Temas <span>opcional</span>
+            </p>
+
+            <p className="capture-theme-description">
+              Uma ideia pode pertencer a vários agrupamentos.
+            </p>
+
+            {themesLoading ? (
+              <p className="capture-theme-empty" role="status">
+                Carregando temas...
+              </p>
+            ) : themes.length > 0 ? (
+              <div className="capture-theme-options">
+                {themes.map((theme) => {
+                  const isSelected = selectedThemeIds.includes(theme.id);
+
+                  return (
+                    <label
+                      key={theme.id}
+                      className={`capture-theme-option ${
+                        isSelected ? "is-selected" : ""
+                      } ${isTypeLocked ? "is-disabled" : ""}`}
+                    >
+                      <input
+                        className="capture-theme-checkbox"
+                        type="checkbox"
+                        checked={isSelected}
+                        onChange={() => handleThemeToggle(theme.id)}
+                        disabled={isTypeLocked}
+                      />
+
+                      <span className="capture-theme-name">
+                        {theme.name}
+                      </span>
+
+                      {isSelected && (
+                        <Check
+                          className="capture-theme-check"
+                          size={15}
+                          aria-hidden="true"
+                        />
+                      )}
+                    </label>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="capture-theme-empty">
+                Você ainda não tem temas cadastrados. Pode continuar
+                sem tema e adicionar associações depois.
+              </p>
+            )}
+
+            {selectedThemeIds.length > 0 && (
+              <p className="capture-theme-selection-count">
+                {selectedThemeIds.length === 1
+                  ? "1 tema selecionado"
+                  : `${selectedThemeIds.length} temas selecionados`}
+              </p>
+            )}
+          </div>
+
           {isMediaType && (
             <>
-              <label htmlFor="capture-file" className="capture-file-label">
+              <label
+                htmlFor="capture-file"
+                className="capture-file-label"
+              >
                 {draftType === "image"
                   ? "Imagem para guardar"
                   : "Áudio para guardar"}
@@ -342,7 +448,10 @@ export default function NewCaptureModal({
                   disabled={isSubmitting}
                   aria-describedby="capture-file-help"
                   onChange={(event) => {
-                    setSelectedFile(event.currentTarget.files?.[0] ?? null);
+                    setSelectedFile(
+                      event.currentTarget.files?.[0] ?? null,
+                    );
+
                     setSubmitError(null);
 
                     // Permite selecionar novamente o mesmo arquivo
@@ -374,7 +483,10 @@ export default function NewCaptureModal({
 
                     <span className="capture-file-subtitle">
                       {selectedFile
-                        ? `${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB · Clique para trocar`
+                        ? `${(
+                            selectedFile.size /
+                            (1024 * 1024)
+                          ).toFixed(2)} MB · Clique para trocar`
                         : draftType === "image"
                           ? "PNG, JPG, WEBP ou GIF"
                           : "MP3, MPEG, WAV, OGG, M4A ou MP4"}
