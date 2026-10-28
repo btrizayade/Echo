@@ -6,6 +6,7 @@ import {
   Trash2,
   Check,
   X,
+  Plus,
 } from "lucide-react";
 
 export type ThemeItem = {
@@ -17,6 +18,7 @@ type ThemeFilterPanelProps = {
   themes: ThemeItem[];
   activeTheme: string;
   onThemeChange: (theme: string) => void;
+  onCreateTheme: (name: string) => Promise<void>;
   onRenameTheme: (id: number, name: string) => Promise<void>;
   onDeleteTheme: (id: number) => Promise<void>;
 };
@@ -25,10 +27,14 @@ export default function ThemeFilterPanel({
   themes,
   activeTheme,
   onThemeChange,
+  onCreateTheme,
   onRenameTheme,
   onDeleteTheme,
 }: ThemeFilterPanelProps) {
   const [isManaging, setIsManaging] = useState(false);
+
+  const [newThemeName, setNewThemeName] = useState("");
+  const [creatingTheme, setCreatingTheme] = useState(false);
 
   const [editingThemeId, setEditingThemeId] =
     useState<number | null>(null);
@@ -47,6 +53,7 @@ export default function ThemeFilterPanel({
 
   function toggleManagement() {
     setIsManaging((current) => !current);
+    setNewThemeName("");
     setEditingThemeId(null);
     setEditName("");
     setConfirmDeleteId(null);
@@ -66,11 +73,59 @@ export default function ThemeFilterPanel({
     setActionError(null);
   }
 
+  async function createNewTheme() {
+    const name = newThemeName.trim();
+
+    if (!name) {
+      setActionError("Digite um nome para o novo tema.");
+      return;
+    }
+
+    const alreadyExists = themes.some(
+      (theme) =>
+        theme.name.trim().toLocaleLowerCase("pt-BR") ===
+        name.toLocaleLowerCase("pt-BR"),
+    );
+
+    if (alreadyExists) {
+      setActionError("Já existe um tema com esse nome.");
+      return;
+    }
+
+    setCreatingTheme(true);
+    setActionError(null);
+
+    try {
+      await onCreateTheme(name);
+      setNewThemeName("");
+    } catch (error) {
+      setActionError(
+        error instanceof Error
+          ? error.message
+          : "Não foi possível criar o tema.",
+      );
+    } finally {
+      setCreatingTheme(false);
+    }
+  }
+
   async function saveTheme(theme: ThemeItem) {
     const name = editName.trim();
 
     if (!name) {
       setActionError("O nome do tema não pode ficar vazio.");
+      return;
+    }
+
+    const duplicate = themes.some(
+      (item) =>
+        item.id !== theme.id &&
+        item.name.trim().toLocaleLowerCase("pt-BR") ===
+          name.toLocaleLowerCase("pt-BR"),
+    );
+
+    if (duplicate) {
+      setActionError("Já existe um tema com esse nome.");
       return;
     }
 
@@ -135,8 +190,8 @@ export default function ThemeFilterPanel({
 
           {isManaging && (
             <p className="theme-management-description">
-              Organize seus agrupamentos, altere nomes ou exclua
-              aqueles que não usa mais.
+              Organize seus agrupamentos, crie novos temas ou
+              altere os que já existem.
             </p>
           )}
         </div>
@@ -202,7 +257,8 @@ export default function ThemeFilterPanel({
         <div className="theme-management-list">
           {themes.length === 0 ? (
             <p className="theme-management-empty">
-              Você ainda não tem temas cadastrados.
+              Você ainda não tem temas cadastrados. Crie o primeiro
+              abaixo!
             </p>
           ) : (
             themes.map((theme) => (
@@ -212,10 +268,7 @@ export default function ThemeFilterPanel({
               >
                 <div className="theme-management-row">
                   <div className="theme-management-item-main">
-                    <Tags
-                      size={16}
-                      aria-hidden="true"
-                    />
+                    <Tags size={16} aria-hidden="true" />
 
                     <span className="theme-management-item-name">
                       {theme.name}
@@ -229,6 +282,7 @@ export default function ThemeFilterPanel({
                       aria-label={`Editar tema ${theme.name}`}
                       title="Editar tema"
                       disabled={
+                        creatingTheme ||
                         savingTheme ||
                         deletingThemeId !== null
                       }
@@ -243,6 +297,7 @@ export default function ThemeFilterPanel({
                       aria-label={`Excluir tema ${theme.name}`}
                       title="Excluir tema"
                       disabled={
+                        creatingTheme ||
                         savingTheme ||
                         deletingThemeId !== null
                       }
@@ -301,9 +356,7 @@ export default function ThemeFilterPanel({
                         disabled={savingTheme}
                       >
                         <Check size={14} />
-                        {savingTheme
-                          ? "Salvando..."
-                          : "Salvar"}
+                        {savingTheme ? "Salvando..." : "Salvar"}
                       </button>
                     </div>
                   </div>
@@ -342,14 +395,53 @@ export default function ThemeFilterPanel({
               </div>
             ))
           )}
+
+          <form
+            className="theme-create-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              void createNewTheme();
+            }}
+          >
+            <div className="theme-create-heading">
+              <Plus size={17} />
+              <h3>Novo tema</h3>
+            </div>
+
+            <label htmlFor="new-theme-name">
+              Nome do novo tema
+            </label>
+
+            <input
+              id="new-theme-name"
+              className="theme-create-input"
+              type="text"
+              placeholder="Ex.: Ideias para projetos"
+              value={newThemeName}
+              onChange={(event) => {
+                setNewThemeName(event.target.value);
+                setActionError(null);
+              }}
+              maxLength={100}
+              disabled={creatingTheme}
+            />
+
+            <div className="theme-create-actions">
+              <button
+                className="theme-create-submit"
+                type="submit"
+                disabled={creatingTheme || !newThemeName.trim()}
+              >
+                <Plus size={15} />
+                {creatingTheme ? "Criando..." : "Criar tema"}
+              </button>
+            </div>
+          </form>
         </div>
       )}
 
       {actionError && (
-        <p
-          className="theme-management-error"
-          role="alert"
-        >
+        <p className="theme-management-error" role="alert">
           {actionError}
         </p>
       )}

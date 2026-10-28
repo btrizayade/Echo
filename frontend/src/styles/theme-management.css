@@ -434,3 +434,166 @@
     padding-top: 8px;
   }
 }
+
+/* ========================================
+   FORMULÁRIO DE CRIAÇÃO DE TEMAS
+======================================== */
+
+.theme-filter-panel .theme-create-form {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 20px 16px 18px;
+
+  background: #f8f4ea;
+  border-top: 1px solid #e8dfcd;
+}
+
+/* Título e ícone */
+
+.theme-filter-panel .theme-create-heading {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  color: #74613b;
+}
+
+.theme-filter-panel .theme-create-heading h3 {
+  margin: 0;
+  color: #29271f;
+  font-size: 1rem;
+  font-weight: 650;
+  line-height: 1.4;
+}
+
+/* Rótulo do campo */
+
+.theme-filter-panel .theme-create-form label {
+  display: block;
+  margin-top: 3px;
+
+  color: #625b4b;
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+/* Campo para o nome do novo tema */
+
+.theme-filter-panel .theme-create-input {
+  display: block;
+  box-sizing: border-box;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 11px 13px;
+
+  color: #29271f;
+  background: #fffdf8;
+  border: 1px solid #ded4bf;
+  border-radius: 9px;
+
+  font-family: inherit;
+  font-size: 0.92rem;
+  line-height: 1.4;
+
+  outline: none;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.theme-filter-panel .theme-create-input::placeholder {
+  color: #a39a89;
+  opacity: 1;
+}
+
+.theme-filter-panel .theme-create-input:hover:not(:disabled) {
+  border-color: #cbbd9e;
+}
+
+.theme-filter-panel .theme-create-input:focus {
+  background: #ffffff;
+  border-color: #c8a746;
+  box-shadow: 0 0 0 3px rgb(200 167 70 / 15%);
+}
+
+.theme-filter-panel .theme-create-input:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* Botão de criação */
+
+.theme-filter-panel .theme-create-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+
+  width: 100%;
+  margin-top: 2px;
+}
+
+.theme-filter-panel .theme-create-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 40px;
+  padding: 10px 16px;
+
+  color: #fffaf0;
+  background: #29271f;
+  border: 1px solid #29271f;
+  border-radius: 9px;
+
+  font-family: inherit;
+  font-size: 0.86rem;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+
+.theme-filter-panel .theme-create-submit:hover:not(:disabled) {
+  background: #494437;
+  border-color: #494437;
+}
+
+.theme-filter-panel .theme-create-submit:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.theme-filter-panel .theme-create-submit:focus-visible {
+  outline: 2px solid #b68c25;
+  outline-offset: 3px;
+}
+
+.theme-filter-panel .theme-create-submit:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* Ajustes para telas pequenas */
+
+@media (max-width: 600px) {
+  .theme-filter-panel .theme-create-form {
+    padding: 16px 12px;
+  }
+
+  .theme-filter-panel .theme-create-submit {
+    width: 100%;
+  }
+}

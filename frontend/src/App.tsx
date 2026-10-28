@@ -23,6 +23,7 @@ import { useThemes } from "./hooks/useThemes";
 import { useRescues } from "./hooks/useRescues";
 
 import {
+  createTheme,
   deleteCapture,
   deleteTheme,
   updateTheme,
@@ -215,6 +216,13 @@ function App() {
     ]);
   }
 
+  async function handleCreateTheme(
+    name: string,
+  ): Promise<void> {
+    await createTheme(name);
+    await refreshThemes();
+  }
+
   // Renomeia um tema e atualiza os dados exibidos.
   async function handleRenameTheme(
     themeId: number,
@@ -366,10 +374,10 @@ function App() {
                 themes={apiThemes}
                 activeTheme={activeTheme}
                 onThemeChange={setActiveTheme}
+                onCreateTheme={handleCreateTheme}
                 onRenameTheme={handleRenameTheme}
                 onDeleteTheme={handleDeleteTheme}
               />
-
               {themesLoading && (
                 <p role="status">Carregando temas...</p>
               )}
