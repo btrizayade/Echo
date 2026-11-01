@@ -1,4 +1,4 @@
-# Echo 🔔
+# Echo
 
 **Memória criativa.** Um espaço para capturar, organizar e reencontrar fragmentos das suas ideias.
 
@@ -170,6 +170,11 @@ Echo/
 │   │   └── main.tsx
 │   ├── package.json
 │   └── vite.config.ts
+├── scripts/
+│   ├── install.ps1           # Instalação no Windows
+│   ├── dev.ps1               # Desenvolvimento no Windows
+│   ├── install.sh            # Instalação no macOS e Linux
+│   └── dev.sh                # Desenvolvimento no macOS e Linux
 ├── tests/
 │   ├── conftest.py
 │   ├── test_assets.py
@@ -187,93 +192,114 @@ Echo/
 
 ## 🚀 Começando
 
-## Instalação e execução local
+### Instalação e execução local
 
 ### Pré-requisitos
 
 Antes de iniciar, instale:
 
-- **Python 3.10 ou superior**
-- **Node.js 20.19+ ou 22.12+**
-- **npm**, incluído na instalação do Node.js
-- **Git**
+- **Python 3.10 ou superior**;
+- **Node.js 22.22.0 ou superior**;
+- **npm**, incluído na instalação do Node.js;
+- **Git**.
 
-Os comandos abaixo são destinados ao Windows, utilizando PowerShell.
+Os scripts de instalação e desenvolvimento automatizam a configuração das dependências e a inicialização dos servidores. Escolha as instruções correspondentes ao seu sistema operacional.
 
 ### 1. Clonar o repositório
 
-```powershell
+O comando de clonagem é o mesmo nos três sistemas:
+
+```bash
 git clone https://github.com/btrizayade/Echo.git
 cd Echo
 ```
 
-### 2. Instalar as dependências
+### 2. Windows (PowerShell)
 
-Execute o script de instalação na raiz do projeto:
+Na primeira configuração, execute na raiz do projeto:
 
 ```powershell
 .\scripts\install.ps1
 ```
 
-O script realiza automaticamente as seguintes etapas:
-
-- Verifica os arquivos necessários do projeto.
-- Verifica as versões do Python e do Node.js.
-- Cria o ambiente virtual Python (`.venv`).
-- Instala as dependências do backend a partir de `requirements.txt`.
-- Instala as dependências do frontend utilizando `npm ci`.
-- Cria os diretórios locais para o banco de dados e os arquivos de mídia.
-
-### 3. Iniciar a aplicação
-
-Após a instalação, execute:
+Depois, para iniciar a aplicação:
 
 ```powershell
 .\scripts\dev.ps1
 ```
 
-O script inicia o backend e o frontend em duas janelas separadas do PowerShell.
+O script abre duas janelas do PowerShell: uma para o backend e outra para o frontend. Mantenha ambas abertas enquanto utilizar o Echo. Para encerrar os servidores, feche essas janelas.
 
-**Endereços locais:**
+Caso o PowerShell bloqueie a execução dos scripts, execute o comando abaixo na mesma janela e tente novamente:
 
-| Serviço | Endereço |
-|---|---|
-| Frontend | http://127.0.0.1:5173 |
-| Backend | http://127.0.0.1:8000 |
-| Documentação da API | http://127.0.0.1:8000/docs |
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+```
 
-Mantenha as duas janelas abertas enquanto estiver utilizando a aplicação.
+### 3. macOS e Linux (Bash)
 
-Para encerrar os servidores, feche as respectivas janelas do PowerShell.
+Na primeira configuração, dê permissão de execução aos scripts:
 
-### 4. Armazenamento local
+```bash
+chmod +x scripts/install.sh scripts/dev.sh
+```
 
-O Echo utiliza SQLite para persistência dos dados e armazenamento local dos arquivos de mídia.
+Execute a instalação:
 
-A estrutura local é criada automaticamente pelo script de instalação:
+```bash
+./scripts/install.sh
+```
+
+Depois, inicie a aplicação:
+
+```bash
+./scripts/dev.sh
+```
+
+No macOS, o script utiliza o Terminal para abrir janelas separadas para o backend e o frontend. Na primeira execução, o sistema pode solicitar autorização para que o Terminal controle a abertura de novas janelas.
+
+No Linux, o script procura um emulador de terminal instalado. São reconhecidos GNOME Terminal, Konsole, XFCE Terminal, `x-terminal-emulator`, Kitty, Alacritty e xterm. Caso nenhum esteja disponível, instale um desses terminais para utilizar o iniciador automático.
+
+Mantenha as duas janelas abertas enquanto utilizar o Echo. Para encerrar os servidores, feche as janelas correspondentes.
+
+### 4. O que os scripts fazem
+
+Os scripts de instalação executam as seguintes etapas:
+
+- Verificam os arquivos necessários e as versões do Python e do Node.js;
+- Criam o ambiente virtual Python (`.venv`);
+- Instalam as dependências do backend a partir de `requirements.txt`;
+- Instalam as dependências do frontend utilizando `npm ci`;
+- Criam os diretórios locais para o banco de dados e os arquivos de mídia.
+
+Os scripts de desenvolvimento iniciam o backend FastAPI e o frontend Vite em terminais separados.
+
+**Endereços local: http://127.0.0.1:5173**
+
+### 5. Armazenamento local
+
+O Echo utiliza SQLite para persistência dos dados e armazenamento local dos arquivos de mídia. A estrutura local é criada automaticamente pelo script de instalação:
 
 ```text
 Echo/
 ├── data/
 │   ├── eco.db
 │   └── media/
-├── scripts/
-│   ├── install.ps1
-│   └── dev.ps1
+└── scripts/
+    ├── install.ps1
+    ├── dev.ps1
+    ├── install.sh
+    └── dev.sh
 ```
 
 Os diretórios e arquivos de dados locais não fazem parte do controle de versão do Git.
 
 ### Observações
 
-- Execute `install.ps1` na primeira configuração do ambiente ou quando precisar reinstalar as dependências.
-- Nas execuções seguintes, basta utilizar `dev.ps1`.
-- Não é necessário ativar manualmente o ambiente virtual: os scripts utilizam diretamente o interpretador Python da `.venv`.
-- Caso o PowerShell bloqueie a execução dos scripts, execute o comando abaixo na mesma janela e tente novamente:
-
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-```
+- Execute o script `install` correspondente ao seu sistema operacional na primeira configuração ou quando precisar reinstalar as dependências;
+- Nas execuções seguintes, basta utilizar o script `dev` correspondente;
+- Não é necessário ativar manualmente o ambiente virtual para iniciar os servidores: os scripts utilizam diretamente o interpretador Python da `.venv`;
+- Os scripts `.ps1` são destinados ao Windows; os scripts `.sh` são destinados ao macOS e Linux.
 
 ## ⚙️ Configuração
 
@@ -283,10 +309,18 @@ Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 | --- | --- | --- |
 | `DATABASE_URL` | `sqlite:///./data/eco.db` | URL de conexão SQLAlchemy. |
 
-Exemplo para uma sessão do PowerShell:
+Exemplos de configuração por terminal:
+
+**PowerShell:**
 
 ```powershell
 $env:DATABASE_URL = "sqlite:///./data/eco.db"
+```
+
+**macOS e Linux (Bash):**
+
+```bash
+export DATABASE_URL="sqlite:///./data/eco.db"
 ```
 
 ### Frontend
@@ -360,9 +394,19 @@ O backend confere o conteúdo real do arquivo, além da extensão e do MIME type
 
 ### Backend
 
-Na raiz do repositório, com o ambiente virtual ativado:
+Na raiz do repositório, ative o ambiente virtual correspondente ao seu sistema operacional e execute os testes.
+
+**Windows (PowerShell):**
 
 ```powershell
+.\.venv\Scripts\Activate.ps1
+pytest -q
+```
+
+**macOS e Linux (Bash):**
+
+```bash
+source .venv/bin/activate
 pytest -q
 ```
 
@@ -372,7 +416,7 @@ Os testes estão organizados por área: capturas, relacionamentos, temas, resgat
 
 Dentro da pasta `frontend`:
 
-```powershell
+```bash
 npm run lint
 npm run build
 ```
@@ -381,7 +425,7 @@ O comando `build` executa `tsc -b` antes de gerar o bundle de produção com Vit
 
 Para servir localmente o bundle gerado:
 
-```powershell
+```bash
 npm run preview
 ```
 
@@ -407,7 +451,6 @@ O Echo está em desenvolvimento. A direção do projeto é aprofundar a ideia de
 ## 🤝 Desenvolvimento
 
 Contribuições, sugestões e relatos de problemas podem ser registrados nas [Issues do repositório](https://github.com/btrizayade/Echo/issues).
-
 
 ---
 
