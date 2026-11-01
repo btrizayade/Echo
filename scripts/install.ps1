@@ -201,10 +201,12 @@ Write-Success "Data directories ready."
 
 Write-Step "Checking Node.js installation..."
 
+$MinimumNodeVersion = [version]"22.22.0"
+
 $NodeInstallation = Get-Command node -ErrorAction SilentlyContinue
 
 if (-not $NodeInstallation) {
-    throw "Node.js was not found. Install Node.js 20.19+ or 22.12+."
+    throw "Node.js was not found. Install Node.js 22.22.0 or newer."
 }
 
 $NodeCommand = $NodeInstallation.Source
@@ -221,18 +223,8 @@ if ($LASTEXITCODE -ne 0) {
 
 $NodeVersion = [version]($NodeVersionText.Trim() -replace "^v", "")
 
-$NodeCompatible = (
-    $NodeVersion.Major -eq 20 -and
-    $NodeVersion -ge [version]"20.19.0"
-) -or (
-    $NodeVersion.Major -ge 22 -and (
-        $NodeVersion.Major -gt 22 -or
-        $NodeVersion -ge [version]"22.12.0"
-    )
-)
-
-if (-not $NodeCompatible) {
-    throw "Unsupported Node.js version: $NodeVersion. Use Node.js 20.19+ or 22.12+."
+if ($NodeVersion -lt $MinimumNodeVersion) {
+    throw "Unsupported Node.js version: $NodeVersion. Use Node.js $MinimumNodeVersion or newer."
 }
 
 Write-Success "Node.js $NodeVersion detected."
