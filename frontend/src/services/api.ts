@@ -19,6 +19,7 @@ export type ApiCapture = {
   created_at: string;
   last_revisited_at: string | null;
   themes: ApiTheme[];
+  is_favorite: boolean;
 };
 
 export type CreateCapturePayload = {
@@ -32,6 +33,7 @@ export type UpdateCapturePayload = {
   title?: string;
   content?: string;
   theme_ids?: number[];
+  is_favorite?: boolean;
 };
 
 export type ApiRescueEvent = {

@@ -175,6 +175,10 @@ def update_capture(
 
         capture.content = updates.content
 
+    # Atualiza o estado de favorito somente se o campo foi enviado.
+    if "is_favorite" in fields:
+        capture.is_favorite = updates.is_favorite
+
     # Capturas de texto precisam continuar tendo conteúdo.
     if capture.type == "text" and not capture.content.strip():
         raise HTTPException(

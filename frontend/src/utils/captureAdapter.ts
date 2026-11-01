@@ -60,6 +60,7 @@ export function mapApiCaptureToCapture(
     title: apiCapture.title,
     content: apiCapture.content,
     themes,
+    is_favorite: apiCapture.is_favorite,
     theme: themes[0] ?? "Sem tema",
     age: formatAge(apiCapture.created_at),
     daysUnattended: getElapsedDays(referenceDate),

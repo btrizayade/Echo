@@ -5,6 +5,7 @@ import {
   LayoutDashboard,
   Lightbulb,
   Sparkles,
+  Star,
   Tags,
   type LucideIcon,
 } from "lucide-react";
@@ -21,6 +22,7 @@ type SidebarProps = {
 const navigation: { label: Section; icon: LucideIcon }[] = [
   { label: "Visão geral", icon: LayoutDashboard },
   { label: "Capturas", icon: Bookmark },
+  { label: "Favoritas", icon: Star },
   { label: "Temas", icon: Tags },
   { label: "Resgates", icon: Sparkles },
 ];

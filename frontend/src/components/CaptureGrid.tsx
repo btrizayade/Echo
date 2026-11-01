@@ -1,4 +1,3 @@
-
 import { Search, X } from "lucide-react";
 
 import CaptureCard from "./CaptureCard";
@@ -8,6 +7,7 @@ type CaptureGridProps = {
   captures: Capture[];
   activeSection: Section;
   onSelectCapture: (capture: Capture) => void;
+  onToggleFavorite: (capture: Capture) => void;
   onClearFilters: () => void;
 };
 
@@ -15,6 +15,7 @@ export default function CaptureGrid({
   captures,
   activeSection,
   onSelectCapture,
+  onToggleFavorite,
   onClearFilters,
 }: CaptureGridProps) {
   if (captures.length === 0) {
@@ -24,10 +25,16 @@ export default function CaptureGrid({
           <Search size={24} />
         </div>
 
-        <h3>Nenhum fragmento por aqui.</h3>
+        <h3>
+          {activeSection === "Favoritas"
+            ? "Nenhum favorito por aqui."
+            : "Nenhum fragmento por aqui."}
+        </h3>
 
         <p>
-          Tente outro termo ou escolha um formato diferente.
+          {activeSection === "Favoritas"
+            ? "Marque suas capturas com uma estrela para encontrá-las aqui."
+            : "Tente outro termo ou escolha um formato diferente."}
         </p>
 
         <button
@@ -53,6 +60,7 @@ export default function CaptureGrid({
           capture={capture}
           index={index}
           onSelect={onSelectCapture}
+          onToggleFavorite={onToggleFavorite}
         />
       ))}
     </div>

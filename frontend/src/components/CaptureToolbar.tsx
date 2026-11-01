@@ -1,4 +1,3 @@
-
 import {
   ArrowUpRight,
   Clock3,
@@ -37,14 +36,22 @@ const sectionLabels: Record<
     eyebrow: "",
     title: "Fragmentos recentes",
   },
+
   Capturas: {
     eyebrow: "SUAS IDEIAS GUARDADAS",
     title: "Todas as capturas",
   },
+
+  Favoritas: {
+    eyebrow: "SUAS IDEIAS FAVORITAS",
+    title: "Fragmentos especiais",
+  },
+
   Temas: {
     eyebrow: "FRAGMENTOS RELACIONADOS",
     title: "Ideias nesse tema",
   },
+
   Resgates: {
     eyebrow: "ESPERANDO POR VOCÊ",
     title: "Hora de redescobrir",

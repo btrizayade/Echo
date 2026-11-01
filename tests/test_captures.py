@@ -16,6 +16,7 @@ def test_create_text_capture(client):
     assert data["id"] is not None
     assert data["created_at"] is not None
     assert data["last_revisited_at"] is None
+    assert data["is_favorite"] is False
 
 
 def test_list_captures(client):
@@ -178,3 +179,69 @@ def test_create_text_capture_requires_content(client):
     )
 
     assert response.status_code == 422
+
+def test_update_capture_favorite(client):
+    create_response = client.post(
+        "/captures",
+        json={
+            "type": "text",
+            "content": "Uma ideia importante.",
+        },
+    )
+
+    assert create_response.status_code == 200
+
+    capture_id = create_response.json()["id"]
+
+    # Marca a captura como favorita.
+    favorite_response = client.patch(
+        f"/captures/{capture_id}",
+        json={"is_favorite": True},
+    )
+
+    assert favorite_response.status_code == 200
+    assert favorite_response.json()["is_favorite"] is True
+
+    # Remove a captura dos favoritos.
+    unfavorite_response = client.patch(
+        f"/captures/{capture_id}",
+        json={"is_favorite": False},
+    )
+
+    assert unfavorite_response.status_code == 200
+    assert unfavorite_response.json()["is_favorite"] is False
+
+
+def test_update_capture_title_preserves_favorite(client):
+    create_response = client.post(
+        "/captures",
+        json={
+            "type": "text",
+            "content": "Uma ideia importante.",
+        },
+    )
+
+    assert create_response.status_code == 200
+
+    capture_id = create_response.json()["id"]
+
+    # Marca a captura como favorita.
+    favorite_response = client.patch(
+        f"/captures/{capture_id}",
+        json={"is_favorite": True},
+    )
+
+    assert favorite_response.status_code == 200
+
+    # Altera somente o titulo.
+    update_response = client.patch(
+        f"/captures/{capture_id}",
+        json={"title": "Ideia importante"},
+    )
+
+    assert update_response.status_code == 200
+
+    data = update_response.json()
+
+    assert data["title"] == "Ideia importante"
+    assert data["is_favorite"] is True

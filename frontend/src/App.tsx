@@ -26,6 +26,7 @@ import {
   createTheme,
   deleteCapture,
   deleteTheme,
+  updateCapture,
   updateTheme,
   uploadCaptureAsset,
   type CreateCapturePayload,
@@ -47,14 +48,22 @@ const sectionHeadings: Record<
     title: "Seu universo de ideias.",
     subtitle: "Um lugar para guardar, explorar e voltar a imaginar.",
   },
+
   Capturas: {
     title: "Tudo o que você guardou.",
     subtitle: "Fragmentos de pensamento, referências e pequenos achados.",
   },
+
+  Favoritas: {
+    title: "Ideias que merecem ficar por perto.",
+    subtitle: "Suas capturas favoritas, reunidas em um só lugar.",
+  },
+
   Temas: {
     title: "Ideias que se encontram.",
     subtitle: "Explore os fios que conectam suas referências.",
   },
+
   Resgates: {
     title: "Vamos redescobrir alguma coisa?",
     subtitle: "Ideias antigas ainda podem surpreender você.",
@@ -87,6 +96,9 @@ function App() {
   const [rescueActionError, setRescueActionError] =
     useState<string | null>(null);
 
+  const [favoriteActionError, setFavoriteActionError] =
+    useState<string | null>(null);
+
   const {
     captures,
     isLoading,
@@ -115,8 +127,19 @@ function App() {
     [apiThemes],
   );
 
+  // Capturas marcadas como favoritas.
+  const favoriteCaptures = useMemo(
+    () => captures.filter((capture) => capture.is_favorite),
+    [captures],
+  );
+
+  // Define quais capturas serão exibidas na seção atual.
   const activeCaptures =
-    activeSection === "Resgates" ? rescues : captures;
+    activeSection === "Resgates"
+      ? rescues
+      : activeSection === "Favoritas"
+        ? favoriteCaptures
+        : captures;
 
   const pageLoading =
     activeSection === "Resgates" ? rescuesLoading : isLoading;
@@ -124,6 +147,7 @@ function App() {
   const pageError =
     activeSection === "Resgates" ? rescuesError : error;
 
+  // Pesquisa e filtros das capturas.
   const visibleCaptures = useMemo(() => {
     let results = [...activeCaptures];
 
@@ -173,6 +197,7 @@ function App() {
     query,
   ]);
 
+  // Capturas que estão há pelo menos 30 dias sem revisita.
   const forgottenCaptures = useMemo(
     () =>
       [...captures]
@@ -247,6 +272,27 @@ function App() {
       refresh(),
       refreshRescues(),
     ]);
+  }
+
+  // Marca ou desmarca uma captura como favorita.
+  async function handleToggleFavorite(
+    capture: Capture,
+  ): Promise<void> {
+    setFavoriteActionError(null);
+
+    try {
+      await updateCapture(capture.id, {
+        is_favorite: !capture.is_favorite,
+      });
+
+      await refresh();
+    } catch (requestError) {
+      setFavoriteActionError(
+        requestError instanceof Error
+          ? requestError.message
+          : "Não foi possível atualizar o favorito.",
+      );
+    }
   }
 
   // Exclui um tema e atualiza os dados exibidos.
@@ -381,6 +427,7 @@ function App() {
                 onRenameTheme={handleRenameTheme}
                 onDeleteTheme={handleDeleteTheme}
               />
+
               {themesLoading && (
                 <p role="status">Carregando temas...</p>
               )}
@@ -459,10 +506,17 @@ function App() {
                 </p>
               )}
 
+              {favoriteActionError && (
+                <p role="alert" className="api-error">
+                  {favoriteActionError}
+                </p>
+              )}
+
               <CaptureGrid
                 captures={visibleCaptures}
                 activeSection={activeSection}
                 onSelectCapture={handleSelectCapture}
+                onToggleFavorite={handleToggleFavorite}
                 onClearFilters={handleClearFilters}
               />
             </>

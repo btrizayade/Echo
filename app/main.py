@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.database.database import Base, engine
+from app.database.migrations import run_migrations
 from app.models.rescue_event import RescueEvent
 from app.models.theme import Theme
 from app.models.capture_asset import CaptureAsset
@@ -13,6 +14,8 @@ from app.routes.assets import router as assets_router
 
 
 Base.metadata.create_all(bind=engine)
+
+run_migrations(engine)
 
 
 app = FastAPI(

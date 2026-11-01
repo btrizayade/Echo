@@ -1,7 +1,7 @@
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, Integer, String, Text
+from sqlalchemy import Boolean, DateTime, Integer, String, Text, false
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database.database import Base
@@ -11,6 +11,7 @@ from app.models.association import capture_themes
 if TYPE_CHECKING:
     from app.models.theme import Theme
     from app.models.capture_asset import CaptureAsset
+
 
 class Capture(Base):
     __tablename__ = "captures"
@@ -46,6 +47,13 @@ class Capture(Base):
     last_revisited_at: Mapped[datetime | None] = mapped_column(
         DateTime,
         nullable=True,
+    )
+
+    is_favorite: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=False,
+        server_default=false(),
     )
 
     themes: Mapped[list["Theme"]] = relationship(

@@ -1,4 +1,3 @@
-
 from datetime import datetime
 from typing import Literal
 
@@ -53,6 +52,7 @@ class CaptureUpdate(BaseModel):
     title: str | None = None
     content: str | None = None
     theme_ids: list[int] | None = None
+    is_favorite: bool = False
 
     @field_validator("title")
     @classmethod
@@ -92,5 +92,6 @@ class CaptureResponse(BaseModel):
     created_at: datetime
     last_revisited_at: datetime | None
     themes: list[ThemeSummary]
+    is_favorite: bool
 
     model_config = ConfigDict(from_attributes=True)
