@@ -1,0 +1,327 @@
+/* ========================================
+   ECHO — HOMEPAGE
+======================================== */
+
+.homepage {
+  --home-blue: #0753B8;
+  --home-navy: #263b5b;
+
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100svh;
+  overflow: hidden;
+  background: #171613;
+  color: #ffffff;
+}
+
+/* ========================================
+   VÍDEO DE FUNDO
+======================================== */
+
+.homepage-background {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background: #171613;
+}
+
+.homepage-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: brightness(0.88);
+}
+
+.homepage-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    rgba(20, 25, 24, 0.22) 0%,
+    rgba(20, 25, 24, 0.04) 38%,
+    rgba(20, 25, 24, 0.16) 65%,
+    rgba(20, 25, 24, 0.56) 100%
+  );
+}
+
+/* ========================================
+   CABEÇALHO E LOGO
+======================================== */
+
+.homepage-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  min-height: 110px;
+  padding: 1.5rem 5.5%;
+}
+
+/* Centralizada no topo, sem caixa, sem link e sem interação. */
+.homepage-brand {
+  position: absolute;
+  top: 17px;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 170px;
+  padding: 0;
+  transform: translateX(-50%);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  pointer-events: none;
+  user-select: none;
+}
+
+.homepage-logo {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 65px;
+  object-fit: contain;
+  object-position: center;
+}
+
+/* ========================================
+   NAVEGAÇÃO
+======================================== */
+
+.homepage-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: clamp(1.2rem, 2.5vw, 2.5rem);
+}
+
+.homepage-navigation-link {
+  position: relative;
+  color: rgba(255, 255, 255, 0.95);
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.84rem;
+  font-weight: 500;
+  text-decoration: none;
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+  transition: color 180ms ease;
+}
+
+.homepage-navigation-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -7px;
+  width: 0;
+  height: 2px;
+  border-radius: 2px;
+  background: #ffffff;
+  transition: width 220ms ease;
+}
+
+.homepage-navigation-link:hover {
+  color: #ffffff;
+}
+
+.homepage-navigation-link:hover::after {
+  width: 100%;
+}
+
+.homepage-navigation-link:focus-visible {
+  outline: 2px solid #0753B8;
+  outline-offset: 5px;
+}
+
+/* ========================================
+   APRESENTAÇÃO PRINCIPAL
+======================================== */
+
+.homepage-hero {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100svh;
+  padding: 10rem 1.5rem 28vh;
+  text-align: center;
+}
+
+.homepage-hero-content {
+  width: 100%;
+  max-width: none;
+  animation: homepage-reveal 700ms ease both;
+}
+
+/* ========================================
+   TÍTULO
+======================================== */
+
+.homepage-title {
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  margin: 0 auto;
+  color: #ffffff;
+  font-family: "DM Sans", sans-serif;
+  font-size: clamp(2.5rem, 2.5vw, 2.5rem);
+  font-weight: 300;
+  letter-spacing: -0.075em;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.homepage-title em {
+  color: #0753B8;
+  font-family: "Fraunces", serif;
+  font-size: 1.15em;
+  font-weight: 600;
+  font-style: normal;
+}
+
+/* ========================================
+   DESCRIÇÃO
+======================================== */
+
+.homepage-description {
+  margin: 0.1rem auto 0;
+  color: rgba(255, 255, 255, 0.94);
+  font-family: "DM Sans", sans-serif;
+  font-size: clamp(0.9rem, 1.2vw, 1.05rem);
+  font-weight: 400;
+  line-height: 1.5;
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+}
+
+/* ========================================
+   ANIMAÇÃO
+======================================== */
+
+@keyframes homepage-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========================================
+   TABLETS
+======================================== */
+
+@media (max-width: 900px) {
+  .homepage-header {
+    min-height: 145px;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 1.2rem 4%;
+  }
+
+  .homepage-brand {
+    top: 12px;
+    width: 145px;
+  }
+
+  .homepage-logo {
+    max-height: 55px;
+  }
+
+  .homepage-navigation {
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.9rem 1.4rem;
+  }
+
+  .homepage-navigation-link {
+    font-size: 0.8rem;
+  }
+
+  .homepage-hero {
+    padding-top: 12rem;
+  }
+
+  .homepage-title {
+    font-size: clamp(1.65rem, 4.5vw, 3.5rem);
+  }
+}
+
+/* ========================================
+   CELULARES
+======================================== */
+
+@media (max-width: 600px) {
+  .homepage-header {
+    min-height: 155px;
+    padding: 1rem 1.2rem;
+  }
+
+  .homepage-brand {
+    width: 125px;
+  }
+
+  .homepage-logo {
+    max-height: 48px;
+  }
+
+  .homepage-navigation {
+    gap: 0.8rem 1rem;
+  }
+
+  .homepage-navigation-link {
+    font-size: 0.72rem;
+  }
+
+  .homepage-hero {
+    padding: 12rem 0.5rem 5vh;
+  }
+
+  .homepage-title {
+    font-size: clamp(1.15rem, 5.1vw, 1.9rem);
+    letter-spacing: -0.06em;
+  }
+
+  .homepage-description {
+    margin-top: 1.4rem;
+    font-size: 0.88rem;
+  }
+
+}
+
+/* ========================================
+   ACESSIBILIDADE
+======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .homepage-hero-content {
+    animation: none;
+  }
+
+  .homepage-video {
+    visibility: hidden;
+  }
+
+  .homepage-navigation-link,
+  .homepage-navigation-link::after {
+    animation: none;
+    transition: none;
+  }
+}

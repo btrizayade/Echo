@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 
 import {
   ArrowUpRight,
@@ -34,19 +35,23 @@ export default function Sidebar({
 }: SidebarProps) {
   return (
     <aside className="sidebar">
-      <button
+
+      {/* Logo: retorna à homepage */}
+      <Link
+        to="/"
         className="brand"
-        onClick={() => onSectionChange("Visão geral")}
-        aria-label="Voltar para a visão geral do Echo"
+        aria-label="Voltar para a homepage do Echo"
       >
         <img
           src={echoLogo}
           alt="Echo"
           className="brand-logo"
         />
-      </button>
+      </Link>
 
-      <p className="sidebar-caption">SEU WORKBENCH CRIATIVO</p>
+      <p className="sidebar-caption">
+        SEU WORKBENCH CRIATIVO
+      </p>
 
       <nav
         className="main-nav"
@@ -64,6 +69,7 @@ export default function Sidebar({
               aria-current={isActive ? "page" : undefined}
             >
               <Icon size={18} strokeWidth={1.9} />
+
               <span>{item.label}</span>
 
               {item.label === "Resgates" && (

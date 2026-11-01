@@ -32,23 +32,28 @@ export function useRescues(
   enabled: boolean,
 ): UseRescuesResult {
   const [rescues, setRescues] = useState<Capture[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [hasLoaded, setHasLoaded] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Ao abrir Resgates pela primeira vez, o estado de loading é derivado
+  // da rota ativa e da primeira resposta, sem setState síncrono no effect.
+  const isLoading = isRefreshing || (enabled && !hasLoaded);
+
   const refresh = useCallback(async () => {
-    setIsLoading(true);
+    setIsRefreshing(true);
     setError(null);
 
     try {
       const apiCaptures = await listRescues(20);
 
-      setRescues(
-        mapApiCapturesToCaptures(apiCaptures),
-      );
+      setRescues(mapApiCapturesToCaptures(apiCaptures));
+      setHasLoaded(true);
     } catch (requestError) {
       setError(getErrorMessage(requestError));
+      setHasLoaded(true);
     } finally {
-      setIsLoading(false);
+      setIsRefreshing(false);
     }
   }, []);
 
@@ -72,10 +77,37 @@ export function useRescues(
   );
 
   useEffect(() => {
-    if (enabled) {
-      void refresh();
+    if (!enabled) {
+      return;
     }
-  }, [enabled, refresh]);
+
+    let cancelled = false;
+
+    async function loadRescues() {
+      try {
+        const apiCaptures = await listRescues(20);
+
+        if (!cancelled) {
+          setRescues(mapApiCapturesToCaptures(apiCaptures));
+          setError(null);
+        }
+      } catch (requestError) {
+        if (!cancelled) {
+          setError(getErrorMessage(requestError));
+        }
+      } finally {
+        if (!cancelled) {
+          setHasLoaded(true);
+        }
+      }
+    }
+
+    void loadRescues();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [enabled]);
 
   return {
     rescues,
