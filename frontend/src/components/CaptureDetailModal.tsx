@@ -48,9 +48,21 @@ export default function CaptureDetailModal({
   rescueRecorded = false,
   rescueError = null,
 }: CaptureDetailModalProps) {
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [audioLoading, setAudioLoading] = useState(false);
-  const [audioError, setAudioError] = useState(false);
+  const [audioState, setAudioState] = useState<{
+    captureId: number;
+    status: "ready" | "error";
+    url?: string;
+  } | null>(null);
+
+  // O estado é associado ao ID para nunca exibir o áudio da captura anterior.
+  const audioUrl =
+    audioState?.captureId === capture.id && audioState.status === "ready"
+      ? audioState.url ?? null
+      : null;
+  const audioError =
+    audioState?.captureId === capture.id && audioState.status === "error";
+  const audioLoading =
+    capture.type === "audio" && audioState?.captureId !== capture.id;
 
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -264,32 +276,31 @@ export default function CaptureDetailModal({
   useEffect(() => {
     let cancelled = false;
 
-    setAudioUrl(null);
-    setAudioError(false);
-
     if (capture.type !== "audio") {
-      setAudioLoading(false);
-
       return () => {
         cancelled = true;
       };
     }
 
-    setAudioLoading(true);
-
     async function loadAudio() {
       try {
         const assets = await listCaptureAssets(capture.id);
-
         const audioAsset = assets.find(
           (asset) => asset.media_type === "audio",
         );
 
         if (!cancelled) {
           if (audioAsset) {
-            setAudioUrl(getAssetFileUrl(audioAsset));
+            setAudioState({
+              captureId: capture.id,
+              status: "ready",
+              url: getAssetFileUrl(audioAsset),
+            });
           } else {
-            setAudioError(true);
+            setAudioState({
+              captureId: capture.id,
+              status: "error",
+            });
           }
         }
       } catch (error) {
@@ -299,11 +310,10 @@ export default function CaptureDetailModal({
         );
 
         if (!cancelled) {
-          setAudioError(true);
-        }
-      } finally {
-        if (!cancelled) {
-          setAudioLoading(false);
+          setAudioState({
+            captureId: capture.id,
+            status: "error",
+          });
         }
       }
     }

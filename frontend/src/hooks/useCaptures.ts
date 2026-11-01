@@ -65,8 +65,33 @@ export function useCaptures() {
   );
 
   useEffect(() => {
-    void refresh();
-  }, [refresh]);
+    let cancelled = false;
+
+    async function loadInitialCaptures() {
+      try {
+        const apiCaptures = await listCaptures();
+
+        if (!cancelled) {
+          setCaptures(mapApiCapturesToCaptures(apiCaptures));
+          setError(null);
+        }
+      } catch (requestError) {
+        if (!cancelled) {
+          setError(getErrorMessage(requestError));
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void loadInitialCaptures();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return {
     captures,

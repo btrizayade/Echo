@@ -1,75 +1,79 @@
-# React + TypeScript + Vite
+# Echo — Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Interface web do Echo, uma memória criativa não generativa. O frontend permite registrar, organizar, revisitar e relacionar capturas pessoais sem gerar conteúdo criativo em nome da pessoa.
 
-Currently, two official plugins are available:
+## Requisitos
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js `>=22.22.0` (Node.js 24 LTS é compatível com a faixa de engines das dependências deste projeto).
+- npm incluído com o Node.js.
+- Backend do Echo disponível para as operações de captura, temas, mídia e resgates.
 
-## React Compiler
+## Instalação
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Na pasta `frontend`:
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```powershell
+npm ci
 ```
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+Copie `.env.example` para `.env.local` caso o backend não esteja em `http://127.0.0.1:8000` e ajuste `VITE_API_BASE_URL`.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Desenvolvimento
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
+```powershell
+npm run dev
 ```
+
+O Vite informa no terminal o endereço local. Normalmente é `http://localhost:5173`.
+
+## Verificações
+
+```powershell
+npm run typecheck
+npm run lint
+npm run build
+```
+
+- `typecheck`: verifica os tipos TypeScript.
+- `lint`: executa as regras ESLint do projeto.
+- `build`: executa a verificação TypeScript e gera a versão de produção em `dist/`.
+
+## Rotas
+
+| URL | Tela |
+|---|---|
+| `/` | Homepage de apresentação |
+| `/app` | Visão geral do workbench |
+| `/app/captures` | Capturas |
+| `/app/favorites` | Favoritas |
+| `/app/themes` | Temas |
+| `/app/rescues` | Resgates |
+
+A navegação da homepage, a Sidebar e os atalhos do painel lateral usam essas mesmas rotas. O endereço da seção ativa é a fonte de verdade, portanto links diretos, atualização da página e histórico voltar/avançar mantêm a seção selecionada.
+
+## Identidade visual e mídia
+
+- Logo: `src/assets/echo-logo.png`.
+- Arte do botão da homepage: `src/assets/botao-homepage.png`.
+- Vídeo de fundo da homepage: `public/videos/homepage-loop.mp4`.
+
+O vídeo é servido como `/videos/homepage-loop.mp4`. Mantenha o nome e o caminho ou atualize a referência em `src/pages/HomePage.tsx`.
+
+## Organização principal
+
+```text
+src/
+├── assets/       # Logo e arte do botão
+├── components/   # Componentes do workbench e modais
+├── data/         # Dados de demonstração e rótulos
+├── hooks/        # Hooks de acesso aos dados da API
+├── pages/        # HomePage e WorkbenchPage
+├── services/     # Cliente da API
+├── styles/       # CSS da homepage e do workbench
+├── types/        # Tipos de domínio
+└── utils/        # Adaptadores dos dados da API
+```
+
+## API
+
+O endereço base é configurado por `VITE_API_BASE_URL`. Sem essa variável, o frontend usa `http://127.0.0.1:8000`.

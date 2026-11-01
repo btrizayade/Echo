@@ -34,8 +34,33 @@ export function useThemes() {
   }, []);
 
   useEffect(() => {
-    void refresh();
-  }, [refresh]);
+    let cancelled = false;
+
+    async function loadInitialThemes() {
+      try {
+        const result = await listThemes();
+
+        if (!cancelled) {
+          setThemes(result);
+          setError(null);
+        }
+      } catch (requestError) {
+        if (!cancelled) {
+          setError(getErrorMessage(requestError));
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+
+    void loadInitialThemes();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return {
     themes,
